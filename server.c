@@ -11,7 +11,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
-#include <random>
+#include <random.h>
 #include "packet.h"
 
 #define buffer_size 1050
@@ -79,40 +79,50 @@ int main(int argc, char** argv){
         while(!conn_shut)
         {
             int numbytes;
-                if ((numbytes = recv(new_fd, buf, buffer_size-1, 0)) == -1) {
-                    perror("recv");
-                    exit(1);
-                }
-                buf[numbytes] = '\0';
+            if ((numbytes = recv(new_fd, buf, buffer_size-1, 0)) == -1) {
+                perror("recv");
+                exit(1);
+            }
+            buf[numbytes] = '\0';
 
-                // create an ack packet
-                //
-                //
-                //
+            struct packet pck_send;
+            memset(pck_send.data, 0, sizeof buffer_size);
+            pck_send.type = processIncomingPck(their_addr, buf, pck_send.data);
+            strcpy((char*) pck_send.source, "server"); 
+            pck_send.size = strlen((char*) pck_send.data);
 
 
-                //send ack packets to the connector
-                //
-                //
-                ///
-                // according to the connection types
+                if(pck_send.type != 16){
+                sendMessage(new_sockfd, pck_send);
+                printf("ACK back to client.\n");
+            }
 
-                printf("Connection Closed\n");
-                close(new_sockfd);
-                return 0;
+            // if drop connection actively, exit or leave session
+            if(pck_send.type == 3 || pck_send.type == 14){
+                conn_shut = true;
+            }
+            if(pck_send.type == 3){
+                printf("Authentication Faliure or Client already logged in. Refuse connection.\n");
+            }else if(pck_send.type == 14){
+                printf("Client Logout. Close connection.\n");
+            }
+
         }
 
+        printf("Connection Closed\n");
+        close(new_sockfd);
         return 0;
+
     }
-
-
-
-
 
 
     return 0;
 }
 
-int processIncomingMsg(struct sockaddr socketID, char* incomingPck, unsigned char* ackInfo, unsigned char* source)
-{}
+
+// numerical order of the commands in the handout, 14 is exit success, 3 is login fail
+int processIncomingPck(struct sockaddr socketID, char* incomingPck, unsigned char* ack_data, unsigned char* source)
+{
+    struct packet docodedPacket = readPck(incomingPck)
+}
 // this function process the incoming packet to return a int value as the packet type Identifier
