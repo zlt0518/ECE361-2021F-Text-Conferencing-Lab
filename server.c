@@ -55,7 +55,7 @@ int main(int argc, char** argv){
 
     // start listening to the socket
     if(listen(s, BACKLOG) == -1){
-        perror("listen");
+        perror("listen Error");
         exit(1);
     }
 
@@ -64,11 +64,11 @@ int main(int argc, char** argv){
 
     char buf[buffer_size];
 
-    while(true)
-    {
+    while(true) {
         int new_sockfd;
         sin_size = sizeof their_addr;
         new_sockfd = accept(s, (struct sockaddr *)&their_addr, &sin_size);
+
         if (new_sockfd == -1) {
             perror("accept");
             continue;
@@ -76,13 +76,12 @@ int main(int argc, char** argv){
 
 
         bool conn_shut = false;
-        while(!conn_shut)
-        {
+        while(!conn_shut){
             int numbytes;
             if ((numbytes = recv(new_fd, buf, buffer_size-1, 0)) == -1) {
                 perror("recv");
                 exit(1);
-            }
+        
             buf[numbytes] = '\0';
 
             struct packet pck_send;
@@ -119,10 +118,3 @@ int main(int argc, char** argv){
     return 0;
 }
 
-
-// numerical order of the commands in the handout, 14 is exit success, 3 is login fail
-int processIncomingPck(struct sockaddr socketID, char* incomingPck, unsigned char* ack_data, unsigned char* source)
-{
-    struct packet docodedPacket = readPck(incomingPck)
-}
-// this function process the incoming packet to return a int value as the packet type Identifier
