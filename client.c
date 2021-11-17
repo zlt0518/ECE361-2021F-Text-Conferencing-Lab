@@ -40,7 +40,7 @@ int main(int argc, char** argv){
                 logInCommandInput[i] = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN)
             }
 
-            int logincommand = processLogInCommand(*logInCommandInput);
+            int logincommand = processLogInCommand(logInCommandInput);
             
             //check the login command by the user
 
@@ -84,16 +84,8 @@ int main(int argc, char** argv){
 
 
 
-
-
-
  
                 //receive the package of acknowledge of yes or no.
-
-
-
-
-
 
 
 
@@ -101,16 +93,44 @@ int main(int argc, char** argv){
             }else{
                 //other log in comman
                 continue;
-
-
             }
+
             
             // in the state of log in but not in session
             while((islogin==1)&&(isinsession==0)){
+                printf("You have logged in! Please input the instruction!\n");
                 unsigned char* notInSessionCommandInput[2];
                 for(int i =0;i<2;i++){
                     notInSessionCommandInput[i] = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN)
                 }
+                //process the command
+                int notInSessioncommand = processLogInCommand(notInSessionCommandInput);
+                
+                //command for quit the client
+                if(notInSessioncommand ==0){
+                    //send out the package for log out 
+
+                    //need to free the pointer
+                    return 0;
+
+
+                }else if(notInSessioncommand == 1){
+                    //command for join session
+                    //create the join session package
+
+
+
+                     //change the flag
+                     is
+
+
+
+
+
+
+                }
+
+
 
                 
 
@@ -129,7 +149,7 @@ int main(int argc, char** argv){
 
 
 
-                
+
 
 
 
@@ -208,6 +228,8 @@ int processLogInCommand(unsigned char* command[5]){
     */
     unsigned char incomingMsg[MAXDATASIZE];
     memset (incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
+    scanf("%[^\n]s", incomingMsg);
+
     sscanf((char*) incomingMsg, "%s", (char*)command[0]);
 
     if(strcmp(commandLine[0], "/login")==0){
@@ -235,7 +257,53 @@ int processLogInCommand(unsigned char* command[5]){
 
 int processNotInSessionCommand(unsigned char* command[2]){
 
+    /* 
+    return 1 for join the session
+    return 2 for create session
+    return 3 for log out
+    return 4 for list
+    return 5 for illegal command
+    return 0 for quit
+    */
+   
+    unsigned char incomingMsg[MAXDATASIZE];
+    memset (incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
+    scanf("%[^\n]s", incomingMsg);
 
+    sscanf((char*) incomingMsg, "%s", (char*)command[0]);
+
+    if(strcmp(commandLine[0], "/join")==0){
+        sscanf((char*) incomingMsg, "%s %s", (char*)command[0],(char*)command[1]);
+        return 1;
+
+
+
+    }else if(strcmp(commandLine[0], "/create")==0){
+        sscanf((char*) incomingMsg, "%s %s", (char*)command[0],(char*)command[1]);
+        return 2;
+
+
+    }else if(strcmp(commandLine[0], "/logout")==0){
+
+        return 3;
+
+
+
+    }else if(strcmp(commandLine[0], "/list")==0){
+        return 4;
+
+
+
+    }else if(strcmp(commandLine[0], "/quit")==0){
+        return 0;
+
+
+
+
+    }else{
+
+        return 5;
+    }
 
 
 
