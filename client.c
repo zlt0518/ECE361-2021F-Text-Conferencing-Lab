@@ -14,6 +14,8 @@
 
 
 int processLogInCommand(unsigned char* commandLine[5]);
+int processNotInSessionCommand(unsigned char* command[2]);
+int processInSessionCommand(unsigned char* command);
 
 
 
@@ -33,12 +35,12 @@ int main(int argc, char** argv){
             printf("You are not log in! Please input the login information!\n");
  
 
-            unsigned char* command[5];
+            unsigned char* logInCommandInput[5];
             for(int i =0;i<5;i++){
-                command[i] = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN)
+                logInCommandInput[i] = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN)
             }
 
-            int logincommand = processLogInCommand(*command);
+            int logincommand = processLogInCommand(*logInCommandInput);
             
             //check the login command by the user
 
@@ -59,8 +61,8 @@ int main(int argc, char** argv){
                 hints.ai_flags = AI_PASSIVE;     // fill in my IP for me
 
                 //get the address and port number from the user
-                int returnaddress = getaddrinfo((char *)command[3], (char *)command[4], &hints, &res);
-                if(returnaddress < 0){
+                int returnAddress = getaddrinfo((char *)logInCommandInput[3], (char *)logInCommandInput[4], &hints, &res);
+                if(returnAddress < 0){
                     printf("Invalid IP Address or Port Number. Please try again!\n");
                     continue;
                 }
@@ -82,10 +84,13 @@ int main(int argc, char** argv){
 
 
 
+
+
+
  
                 //receive the package of acknowledge of yes or no.
 
-                
+
 
 
 
@@ -96,6 +101,42 @@ int main(int argc, char** argv){
             }else{
                 //other log in comman
                 continue;
+
+
+            }
+            
+            // in the state of log in but not in session
+            while((islogin==1)&&(isinsession==0)){
+                unsigned char* notInSessionCommandInput[2];
+                for(int i =0;i<2;i++){
+                    notInSessionCommandInput[i] = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN)
+                }
+
+                
+
+
+
+            }
+
+
+
+
+            //in the state of in session;
+            while((islogin==1)&&(isinsession==0)){
+
+                unsigned char* inSessionCommandInput;
+                InSessionCommandInput = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
+
+
+
+                
+
+
+
+
+
+
+
 
 
             }
@@ -185,10 +226,18 @@ int processLogInCommand(unsigned char* command[5]){
 
     }
 
+    return 2;
 
+
+
+}
+
+
+int processNotInSessionCommand(unsigned char* command[2]){
 
 
 
 
 
 }
+
