@@ -11,12 +11,14 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
-#include <random.h>
 #include "packet.h"
+#include "server.h"
 
 #define buffer_size 1050
 
-//part of the code is refered from Beej's guide
+//part of the code is derived from Beej's guide
+
+int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
 
 int main(int argc, char** argv){
 
@@ -54,7 +56,7 @@ int main(int argc, char** argv){
     }
 
     // start listening to the socket
-    if(listen(s, BACKLOG) == -1){
+    if(listen(s, 10) == -1){
         perror("listen Error");
         exit(1);
     }
@@ -78,7 +80,7 @@ int main(int argc, char** argv){
         bool conn_shut = false;
         while(!conn_shut){
             int numbytes;
-            if ((numbytes = recv(new_fd, buf, buffer_size-1, 0)) == -1) {
+            if ((numbytes = recv(new_sockfd, buf, buffer_size-1, 0)) == -1) {
                 perror("recv");
                 exit(1);
         
@@ -86,13 +88,13 @@ int main(int argc, char** argv){
 
             struct packet pck_send;
             memset(pck_send.data, 0, sizeof buffer_size);
-            pck_send.type = processIncomingPck(their_addr, buf, pck_send.data);
+            pck_send.type = processIncomingPck(their_addr, buf, pck_send.data, pck_send.source);
             strcpy((char*) pck_send.source, "server"); 
             pck_send.size = strlen((char*) pck_send.data);
 
 
                 if(pck_send.type != 16){
-                sendMessage(new_sockfd, pck_send);
+                sendPck(new_sockfd, pck_send);
                 printf("ACK back to client.\n");
             }
 
@@ -118,3 +120,50 @@ int main(int argc, char** argv){
     return 0;
 }
 
+int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
+{
+    struct packet recvPck = readPck(buffer);
+
+    switch(recvPck.type)
+    {
+        case 1:
+            unsigned char un[buffer_size];
+            unsigned char pw[buffer_size];
+
+            char* space;
+            space = strchr((char*) recvPck.data, ' ');
+            *space = '\0';
+            strcpy((char*) un, (char*) recvPck.data);
+            strcpy((char*) pw, space);
+
+            if(login(un,pw,data_fill,source))
+            {
+                return 2;
+            }
+            else
+            {
+                return 3;
+            }
+            break;
+        case 4:
+            leaveSession();
+            logout();
+            break;
+        case 5:
+            break;
+        case 8:
+            break;
+        case 9:
+            break;
+        case 11:
+            break;
+        case 12:
+            break;
+        default:
+            printf("no usch message type\n");
+            break;
+
+    }
+
+    return -1;
+}

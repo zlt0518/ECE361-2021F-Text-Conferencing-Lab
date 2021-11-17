@@ -3,7 +3,7 @@
 void sendPck(int s, struct packet encodedPck)
 {
     char data_send[1050];
-    const int length = sprintf(data, "%d:%d:%s:%s", encodedPck.type, encodedPck.size, encodedPck.source
+    const int length = sprintf(data_send, "%d:%d:%s:%s", encodedPck.type, encodedPck.size, encodedPck.source
     , encodedPck.data);
     int sendInfo = send(s, data_send, length, 0);
     if(sendInfo == -1)
