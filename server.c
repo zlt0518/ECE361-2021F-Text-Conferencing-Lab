@@ -11,22 +11,31 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
-#include "packet.h"
+#include "message.h"
 #include "server.h"
 
 #define buffer_size 1050
 
 //part of the code is derived from Beej's guide
 
-int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
+int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
 
 int main(int argc, char** argv){
+
+    fd_set master; // master file descriptor list
+    fd_set read_fds; // temp file descriptor list for select()
+    int fdmax;
+    int i, j, listener, newfd;
+    char buffer[buffer_size];
 
     //get the port number
     if (argc !=2) {
         printf("Invalid number of arguments!");
         return(1);
     }
+
+    FD_ZERO(&master); // clear the master and temp sets
+    FD_ZERO(&read_fds);
 
     // socket()
     struct addrinfo hints;
@@ -38,10 +47,10 @@ int main(int argc, char** argv){
 
     int rv = getaddrinfo(NULL, argv[1], &hints, &res);
 
-    int s = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    int listener = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
     //check if the socket is legel
-    if (s < 0){
+    if (listener < 0){
         printf("Error Socket in Server");
         return 1;
     }
@@ -56,85 +65,107 @@ int main(int argc, char** argv){
     }
 
     // start listening to the socket
-    if(listen(s, 10) == -1){
+    if(listen(listener, 10) == -1){
         perror("listen Error");
         exit(1);
     }
 
     struct sockaddr their_addr; // connector's address information
-    socklen_t sin_size;
+    socklen_t addrlen;
 
     char buf[buffer_size];
 
-    while(true) {
-        int new_sockfd;
-        sin_size = sizeof their_addr;
-        new_sockfd = accept(s, (struct sockaddr *)&their_addr, &sin_size);
+    FD_SET(listener, &master);
+    fdmax = listener;
 
-        if (new_sockfd == -1) {
-            perror("accept");
-            continue;
+    while(true) 
+    {
+        read_fds = master;
+        if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
+        {
+            perror("select");
+            exit(4);
         }
 
+        for(i = 0; i <= fdmax; i++) 
+        {
+            if (FD_ISSET(i, &read_fds)) 
+            { // we got one!!
+                if (i == listener) 
+                {
+                    // handle new connections
+                    addrlen = sizeof their_addr;
+                    newfd = accept(listener,
+                    (struct sockaddr *)&their_addr,
+                    &addrlen);
 
-        bool conn_shut = false;
-        while(!conn_shut){
-            int numbytes;
-            if ((numbytes = recv(new_sockfd, buf, buffer_size-1, 0)) == -1) {
-                perror("recv");
-                exit(1);
+                    if (newfd == -1) 
+                    {
+                        perror("accept");
+                    } 
+                    else 
+                    {
+                        FD_SET(newfd, &master); // add to master set
+                        if (newfd > fdmax) 
+                        { // keep track of the max
+                            fdmax = newfd;
+                        }
+                    }
+                } 
+                else 
+                {
+                   int nbytes;
+                    if ((nbytes = recv(newfd, buffer, buffer_size-1, 0)) == -1) {
+                        perror("recv");
+                        exit(1);
+                    }
+                    buffer[nbytes] = '\0';
+
+                    // create reply msg
+                    struct message sendM;
+                    memset(sendM.data, 0, sizeof sendM.data);
+                    sendM.size = strlen((char*) sendM.data);
+                    sendM.type = processIncomingM(their_addr, buffer, sendM.data, sendM.source);
+                    
+
+                    // send reply
+                    if(sendM.type != 15){
+                        sendMsg(new_fd, sendMsg);
+                        printf("[INFO] ACK back to client.\n");
+                    }
+                    if(sendM.type == 3 || sendM.type == 14){
+                        close(i);
+                        FD_CLR(i, &master);
+                    }
+                    if(sendM.type == 3){
+                        printf("client is logged in or wrong ID/PW.\n");
+                    }else if(sendM.type == 14){
+                        printf("Client Logout.\n");
+                    }
+                } // END handle data from client
+            } // END got new incoming connection
+        } // END looping through file descriptors
         
-            buf[numbytes] = '\0';
-
-            struct packet pck_send;
-            memset(pck_send.data, 0, sizeof buffer_size);
-            pck_send.type = processIncomingPck(their_addr, buf, pck_send.data, pck_send.source);
-            strcpy((char*) pck_send.source, "server"); 
-            pck_send.size = strlen((char*) pck_send.data);
-
-
-                if(pck_send.type != 15){
-                sendPck(new_sockfd, pck_send);
-                printf("ACK back to client.\n");
-            }
-
-            // if drop connection actively, exit or leave session
-            if(pck_send.type == 3 || pck_send.type == 14){
-                conn_shut = true;
-            }
-            if(pck_send.type == 3){
-                printf("Authentication Faliure or Client already logged in. Refuse connection.\n");
-            }else if(pck_send.type == 14){
-                printf("Client Logout. Close connection.\n");
-            }
-
-        }
-
-        printf("Connection Closed\n");
-        close(new_sockfd);
-        exit(0);
-
-    }
-
+    } // END while(true)--and you thought it would never end!
 
     return 0;
 }
 
-int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
+int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
 {
-    struct packet recvPck = readPck(buffer);
+    struct message recvM = readMsg(buffer);
     strcpy((char*) source, "server");
 
-    switch(recvPck.type)
+    switch(recvM.type)
     {
         case 1:
             unsigned char un[buffer_size];
             unsigned char pw[buffer_size];
 
             char* space;
-            space = strchr((char*) recvPck.data, ' ');
+            space = strchr((char*) recvM.data, ' ');
             *space = '\0';
-            strcpy((char*) un, (char*) recvPck.data);
+            strcpy((char*) un, (char*) recvM.data);
             strcpy((char*) pw, space);
 
             if(login(un,pw,data_fill,source))
@@ -147,12 +178,12 @@ int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, u
             }
             break;
         case 4:
-            leaveSession(recvPck.source,data_fill);
+            leaveSession(recvM.source,data_fill);
             logout(source);
             return 14;
             break;
         case 5:
-            if(joinSession(recvPck.source,recvPck.data,data_fill))
+            if(joinSession(recvM.source,recvM.data,data_fill))
             {
                 return 6;
             }
@@ -162,14 +193,14 @@ int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, u
             }
             break;
         case 8:
-            leaveSession(recvPck.source,data_fill);
+            leaveSession(recvM.source,data_fill);
             break;
         case 9:
-            createSession(recvPck.source,recvPck.data,data_fill);
+            createSession(recvM.source,recvM.data,data_fill);
             return 10;
             break;
         case 11:
-            send_txt(recvPck.data);
+            send_txt(recvM.data);
             return 15;
             break;
         case 12:

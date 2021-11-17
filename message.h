@@ -1,5 +1,5 @@
-#ifndef PACKET_H
-#define PACKET_H
+#ifndef MESSAGE_H
+#define MESSAGE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
-struct packet{
+struct message{
 	unsigned int type;
 	unsigned int size;
 	unsigned char source[1050];
@@ -17,8 +17,8 @@ struct packet{
 };
 
 
-void sendPck(int s, struct packet encodedPck);
-struct packet readPck(char* incomingPck);
+void sendMsg(int s, struct message encodedM);
+struct message readMsg(char* incomingM);
 
 // message types
 /*
