@@ -93,7 +93,7 @@ int main(int argc, char** argv){
             pck_send.size = strlen((char*) pck_send.data);
 
 
-                if(pck_send.type != 16){
+                if(pck_send.type != 15){
                 sendPck(new_sockfd, pck_send);
                 printf("ACK back to client.\n");
             }
@@ -112,7 +112,7 @@ int main(int argc, char** argv){
 
         printf("Connection Closed\n");
         close(new_sockfd);
-        return 0;
+        exit(0);
 
     }
 
@@ -123,6 +123,7 @@ int main(int argc, char** argv){
 int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
 {
     struct packet recvPck = readPck(buffer);
+    strcpy((char*) source, "server");
 
     switch(recvPck.type)
     {
@@ -146,21 +147,37 @@ int processIncomingPck(int s, unsigned char* buffer, unsigned char* data_fill, u
             }
             break;
         case 4:
-            leaveSession();
-            logout();
+            leaveSession(recvPck.source,data_fill);
+            logout(source);
+            return 14;
             break;
         case 5:
+            if(joinSession(recvPck.source,recvPck.data,data_fill))
+            {
+                return 6;
+            }
+            else
+            {
+                return 7;
+            }
             break;
         case 8:
+            leaveSession(recvPck.source,data_fill);
             break;
         case 9:
+            createSession(recvPck.source,recvPck.data,data_fill);
+            return 10;
             break;
         case 11:
+            send_txt(recvPck.data);
+            return 15;
             break;
         case 12:
+            listUserSession(data_fill);
+            return 13;
             break;
         default:
-            printf("no usch message type\n");
+            printf("no such message type\n");
             break;
 
     }

@@ -4,6 +4,7 @@ struct user_info{
     char* username;
     char* password;
     char* sessionID;
+    int sockfd;
     bool isLogin;
     bool isInSession;
 };
