@@ -1,18 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <signal.h>
 #include "message.h"
 #include "server.h"
+#include "user.h"
 
 #define buffer_size 1050
 
@@ -21,6 +9,8 @@
 int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
 
 int main(int argc, char** argv){
+
+    init_database();
 
     fd_set master; // master file descriptor list
     fd_set read_fds; // temp file descriptor list for select()
@@ -73,8 +63,6 @@ int main(int argc, char** argv){
     struct sockaddr their_addr; // connector's address information
     socklen_t addrlen;
 
-    char buf[buffer_size];
-
     FD_SET(listener, &master);
     fdmax = listener;
 
@@ -110,12 +98,23 @@ int main(int argc, char** argv){
                         { // keep track of the max
                             fdmax = newfd;
                         }
+                        struct message sendM;
+                        memset(sendM.data, 0, sizeof sendM.data);
+                        sendM.size = strlen((char*) sendM.data);
+                        sendM.type = processIncomingM(newfd, buffer, sendM.data, sendM.source);
+                        
+
+                        // send reply
+                        if(sendM.type != 15){
+                            sendMsg(newfd, sendM);
+                            printf("[INFO] ACK back to client.\n");
+                        }
                     }
                 } 
                 else 
                 {
                    int nbytes;
-                    if ((nbytes = recv(newfd, buffer, buffer_size-1, 0)) == -1) {
+                    if ((nbytes = recv(i, buffer, buffer_size-1, 0)) == -1) {
                         perror("recv");
                         exit(1);
                     }
@@ -125,12 +124,12 @@ int main(int argc, char** argv){
                     struct message sendM;
                     memset(sendM.data, 0, sizeof sendM.data);
                     sendM.size = strlen((char*) sendM.data);
-                    sendM.type = processIncomingM(their_addr, buffer, sendM.data, sendM.source);
+                    sendM.type = processIncomingM(i, buffer, sendM.data, sendM.source);
                     
 
                     // send reply
-                    if(sendM.type != 15){
-                        sendMsg(new_fd, sendMsg);
+                    if(sendM.type != 11 && sendM.type != 15){
+                        sendMsg(newfd, sendM);
                         printf("[INFO] ACK back to client.\n");
                     }
                     if(sendM.type == 3 || sendM.type == 14){
@@ -168,7 +167,7 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
             strcpy((char*) un, (char*) recvM.data);
             strcpy((char*) pw, space);
 
-            if(login(un,pw,data_fill,source))
+            if(login(s,un,pw,data_fill,source))
             {
                 return 2;
             }
@@ -178,7 +177,7 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
             }
             break;
         case 4:
-            leaveSession(recvM.source,data_fill);
+            leaveSession(recvM.source);
             logout(source);
             return 14;
             break;
@@ -193,15 +192,16 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
             }
             break;
         case 8:
-            leaveSession(recvM.source,data_fill);
+            leaveSession(recvM.source);
+            return 15;
             break;
         case 9:
-            createSession(recvM.source,recvM.data,data_fill);
+            createSession(recvM.source, recvM.data, data_fill);
             return 10;
             break;
         case 11:
-            send_txt(recvM.data);
-            return 15;
+            send_txt(recvM.source, recvM.data);
+            return 11;
             break;
         case 12:
             listUserSession(data_fill);
