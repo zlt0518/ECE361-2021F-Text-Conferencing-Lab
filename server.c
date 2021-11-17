@@ -6,7 +6,7 @@
 
 //part of the code is derived from Beej's guide
 
-int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
+int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source);
 
 int main(int argc, char** argv){
 
@@ -37,7 +37,7 @@ int main(int argc, char** argv){
 
     int rv = getaddrinfo(NULL, argv[1], &hints, &res);
 
-    int listener = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    listener = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
 
     //check if the socket is legel
     if (listener < 0){
@@ -46,7 +46,7 @@ int main(int argc, char** argv){
     }
 
     // bind()
-    int bindinfo = bind(s, res->ai_addr, res->ai_addrlen);
+    int bindinfo = bind(listener, res->ai_addr, res->ai_addrlen);
 
     //check if the binding is success else return the failure message
     if (bindinfo == -1) {
@@ -101,7 +101,7 @@ int main(int argc, char** argv){
                         struct message sendM;
                         memset(sendM.data, 0, sizeof sendM.data);
                         sendM.size = strlen((char*) sendM.data);
-                        sendM.type = processIncomingM(newfd, buffer, sendM.data, sendM.source);
+                        sendM.type = processIncomingM(their_addr,newfd, buffer, sendM.data, sendM.source);
                         
 
                         // send reply
@@ -124,7 +124,7 @@ int main(int argc, char** argv){
                     struct message sendM;
                     memset(sendM.data, 0, sizeof sendM.data);
                     sendM.size = strlen((char*) sendM.data);
-                    sendM.type = processIncomingM(i, buffer, sendM.data, sendM.source);
+                    sendM.type = processIncomingM(their_addr,i, buffer, sendM.data, sendM.source);
                     
 
                     // send reply
@@ -150,7 +150,7 @@ int main(int argc, char** argv){
     return 0;
 }
 
-int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
+int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
 {
     struct message recvM = readMsg(buffer);
     strcpy((char*) source, "server");
@@ -158,6 +158,7 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
     switch(recvM.type)
     {
         case 1:
+        {
             unsigned char un[buffer_size];
             unsigned char pw[buffer_size];
 
@@ -167,7 +168,7 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
             strcpy((char*) un, (char*) recvM.data);
             strcpy((char*) pw, space);
 
-            if(login(s,un,pw,data_fill,source))
+            if(login(their_addr,s,un,pw,data_fill,source))
             {
                 return 2;
             }
@@ -176,6 +177,7 @@ int processIncomingM(int s, unsigned char* buffer, unsigned char* data_fill, uns
                 return 3;
             }
             break;
+        }
         case 4:
             leaveSession(recvM.source);
             logout(source);

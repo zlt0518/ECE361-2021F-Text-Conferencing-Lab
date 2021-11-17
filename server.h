@@ -17,6 +17,8 @@ struct user_info{
     unsigned char username[100];
     unsigned char password[100];
     unsigned char sessionID[100];
+    unsigned char IP[100];
+    int port;
     int sockfd;
     bool isLogin;
     bool isInSession;

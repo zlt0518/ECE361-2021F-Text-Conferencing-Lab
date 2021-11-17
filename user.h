@@ -17,7 +17,7 @@
 
 void init_database();
 
-bool login(int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source );
+bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source );
 
 void logout(unsigned char* un);
 
@@ -27,7 +27,7 @@ void createSession(unsigned char* un, unsigned char* sessionID, unsigned char* r
 
 void leaveSession(unsigned char* un);
 
-bool send_txt(unsigned char* un, unsigned char* txt);
+void send_txt(unsigned char* un, unsigned char* txt);
 
 void listUserSession(unsigned char* reply);
 

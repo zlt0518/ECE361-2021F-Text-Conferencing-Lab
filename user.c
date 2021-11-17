@@ -41,7 +41,7 @@ void listUserSession(unsigned char* reply)
     }
 }
 
-bool login(int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source )
+bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source )
 {
     for(int i = 0; i < MAX_USER; i++)
     {
@@ -54,6 +54,11 @@ bool login(int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, 
             }
             else if(strcmp((char*) database[i].password, (char*) pw) == 0)
             {
+                struct sockaddr_in *addr_in = (struct sockaddr_in*) &their_addr;
+                char *IPAddr = inet_ntoa(addr_in->sin_addr);
+                strcpy((char*) database[i].IP, IPAddr);
+
+                database[i].port = addr_in->sin_port;
                 database[i].isLogin = true;
                 database[i].sockfd = sfd;
                 strcpy((char*) reply, "login success");
@@ -107,6 +112,91 @@ void createSession(unsigned char* un, unsigned char* sessionID, unsigned char* r
         }
     }
 }
+
+bool joinSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply)
+{
+    bool sessionValid = false;
+    for(int i =0; i < MAX_USER; i++)
+    {
+        if(database[i].isInSession)
+        {
+            if(strcmp((char*) database[i].sessionID, (char*) sessionID) == 0)
+            sessionValid = true;
+            break;
+        }
+    }
+
+    if(!sessionValid)
+    {
+        strcpy((char*) reply, "session not found");
+        return sessionValid;
+    }
+    else
+    {
+        for(int i =0; i < MAX_USER; i++)
+        {
+            if(strcmp((char*) database[i].username, (char*) un) == 0)
+            {
+                database[i].isInSession = true;
+                strcpy((char*)database[i].sessionID, (char*)sessionID);
+                strcpy((char*) reply, "successfully joined designated session");
+                return sessionValid; 
+            }
+        }
+    }
+
+    return sessionValid;
+}
+
+void send_txt(unsigned char* un, unsigned char* txt)
+{
+    unsigned char crtSession[100];
+    
+    for(int i = 0; i < MAX_USER; i++)
+    {
+        if(strcmp((char*) un, (char*) database[i].username) == 0)
+        {
+            if(!database[i].isInSession)
+            {
+                printf("client not in session!");
+                return;
+            }
+            else
+            {
+                strcpy((char*) crtSession, (char*) database[i].sessionID);
+                break;
+            }
+        }
+
+        if(i == MAX_USER -1)
+        {
+            printf("user not found!");
+            return;
+        }
+    }
+
+    struct message sendM;
+    memset(sendM.data, 0, sizeof sendM.data);
+    strcpy((char*) sendM.data, (char*) un);
+    strcat((char*) sendM.data, "----=");
+    strcat((char*) sendM.data, (char*) txt);
+    sendM.size = strlen((char*) sendM.data);
+    sendM.type = 11;
+
+    for(int i =0 ; i < MAX_USER; i++)
+    {
+        if(database[i].isInSession)
+        {
+            if(strcmp((char*) crtSession, (char*) database[i].sessionID) == 0)
+            {
+                sendMsg(database[i].sockfd, sendM);
+            }
+        }
+    }
+
+    printf("finished sending text in user designated session");
+}
+
 
 
 
