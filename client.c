@@ -22,6 +22,7 @@ int processInSessionCommand(unsigned char* command);
 //part of the code is refered from Beej's guide
 
 int main(int argc, char** argv){
+    //declare the flag and socket
      bool isLogin = 0;
      bool isinsession = 0;
      int socket;
@@ -92,7 +93,7 @@ int main(int argc, char** argv){
 
             }else{
                 //other log in comman
-                continue;
+                
             }
 
             
@@ -116,23 +117,50 @@ int main(int argc, char** argv){
 
                 }else if(notInSessioncommand == 1){
                     //command for join session
-                    //create the join session package
+                    //create the join session package and send
 
 
 
                      //change the flag
-                     is
+                     isinsession = 1;
+
+                }else if(notInSessioncommand == 2){
+                    //command for create session
+                    //create the create session package and send
+
+
+
+                     //change the flag
+                     isinsession = 1;
+
+
+
+                }else if(notInSessioncommand == 3){
+                    //command for log out
+                    //create package of logout and send
 
 
 
 
+                    //change the flag
+                    isLogin = 0;
+
+
+
+                }else if (notInSessioncommand == 4){
+                    //command for list
+                    //create package of list and send
+
+
+
+
+                }else{
+                    printf("Ilegal Command, Please input an valid command!");
 
 
                 }
 
-
-
-                
+                //free the command pointer
 
 
 
@@ -146,24 +174,10 @@ int main(int argc, char** argv){
 
                 unsigned char* inSessionCommandInput;
                 InSessionCommandInput = (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
-
-
-
-
-
-
-
-
-
-
-
+                
 
 
             }
-
-
-
-
 
             //listen and receive the message of acknowledegement and check if the login info matched with the system 
 
@@ -172,44 +186,9 @@ int main(int argc, char** argv){
             //if the message confirms the login go to other loop and set the islogin else promt for other trial
 
 
-
-
-
-
-
-
-
-
-
-
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
      }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     return 0;
