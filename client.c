@@ -12,6 +12,7 @@
 #include "user.h"
 
 #define MAXDATASIZE 100
+#define MAX_NAME 1000
 
 int processLogInCommand(unsigned char *commandLine[5]);
 int processNotInSessionCommand(unsigned char *command[2]);
@@ -24,6 +25,7 @@ int main(int argc, char **argv) {
     bool isLogin = 0;
     bool isinsession = 0;
     int socket;
+    unsigned char userID[MAX_NAME];
 
     while (true) {
         // the state of not login
@@ -41,7 +43,12 @@ int main(int argc, char **argv) {
             // check the login command by the user
 
             // if the user asked for quit
-            if (logincommand == 0) return 0;
+            if (logincommand == 0){
+                //free pointers
+
+
+
+            }
 
             // command for legal login command
             else if (logincommand == 1) {
@@ -71,14 +78,15 @@ int main(int argc, char **argv) {
                     continue;
                 }
 
-                int connnectToServer =
-                    connect(socket, res->ai_addr, res->ai_addrlen);
+                int connnectToServer = connect(socket, res->ai_addr, res->ai_addrlen);
 
                 if (connnectToServer < 0) {
                     printf(
                         "Fail to connect to the server! Please try again!\n");
                     continue;
                 }
+
+                strcpy(userID,logInCommandInput[1]);
                 // create the package for sending the log in info package
 
                 // receive the package of acknowledge of yes or no.
@@ -124,6 +132,7 @@ int main(int argc, char **argv) {
                 // command for log out
                 // create package of logout and send
 
+
                 // change the flag
                 isLogin = 0;
                 printf("Log out succeeded!\n");
@@ -133,6 +142,7 @@ int main(int argc, char **argv) {
 
                 // command for list
                 // create package of list and send
+
 
                 //listen for the package of list 
 
@@ -195,6 +205,8 @@ int main(int argc, char **argv) {
 
             }else if(inSessioncommand == 4){
                  //create the message to sent
+
+
             }
 
             //free pointers
@@ -306,4 +318,16 @@ int processInSessionCommand(unsigned char *command) {
     } else {
         return 4;
     }
+}
+
+
+struct message createListPackage(char* user){
+    // valid input
+    struct message package;
+    package.type = 12;
+    strcpy((char*)package.data,(char*)"list");
+    package.size = strlen((char*) "list");
+    strcpy((char*)package.source,user);
+    return package;
+
 }
