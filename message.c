@@ -11,7 +11,7 @@ void sendMsg(int s, struct message encodedM) {
     const int length = sprintf(data_send, "%d:%d:%s:%s", encodedM.type,encodedM.size, encodedM.source, encodedM.data);
     int sendInfo = send(s, data_send, length, 0);
     if (sendInfo < 0) {
-        perror("send");
+        printf("send");
     }
 }
 
