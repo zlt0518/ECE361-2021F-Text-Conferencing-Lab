@@ -6,13 +6,13 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-
 #include "message.h"
 #include "server.h"
 #include "user.h"
 
 #define MAXDATASIZE 100
 #define MAX_NAME 1000
+#define MAX_COMMAND_LEN 1000
 
 int processLogInCommand(unsigned char *commandLine[5]);
 int processNotInSessionCommand(unsigned char *command[2]);
@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
 
             unsigned char *logInCommandInput[5];
             for (int i = 0; i < 5; i++) {
-                logInCommandInput[i] = (unsigned char *)malloc(
-                    sizeof(unsigned char) * MAX_COMMAND_LEN);
+                logInCommandInput[i] = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
+
             }
 
             int logincommand = processLogInCommand(logInCommandInput);
@@ -45,8 +45,9 @@ int main(int argc, char **argv) {
             // if the user asked for quit
             if (logincommand == 0){
                 //free pointers
+                for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
 
-
+                return 0;
 
             }
 
@@ -61,13 +62,10 @@ int main(int argc, char **argv) {
                 hints.ai_flags = AI_PASSIVE;  // fill in my IP for me
 
                 // get the address and port number from the user
-                int returnAddress =
-                    getaddrinfo((char *)logInCommandInput[3],
-                                (char *)logInCommandInput[4], &hints, &res);
+                int returnAddress =getaddrinfo((char *)logInCommandInput[3],(char *)logInCommandInput[4], &hints, &res);
                 if (returnAddress < 0) {
-                    printf(
-                        "Invalid IP Address or Port Number. Please try "
-                        "again!\n");
+                    printf("Invalid IP Address or Port Number. Please try again!\n");
+                    for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
                     continue;
                 }
 
@@ -75,45 +73,77 @@ int main(int argc, char **argv) {
 
                 if (socket < 0) {
                     printf("Socket Error!\n");
+                    for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
                     continue;
                 }
 
                 int connnectToServer = connect(socket, res->ai_addr, res->ai_addrlen);
 
                 if (connnectToServer < 0) {
-                    printf(
-                        "Fail to connect to the server! Please try again!\n");
+                    printf("Fail to connect to the server! Please try again!\n");
+                    for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
                     continue;
                 }
 
                 strcpy(userID,logInCommandInput[1]);
-                // create the package for sending the log in info package
 
-                // receive the package of acknowledge of yes or no.
-            } else {
-                // other log in command
+                // create the package for sending the log in info package
+                struct message unloginpackage = createLoginPackage(userID, logInCommandInput[2]);
+                sendMsg(socket,unloginpackage);
+
+                // receive the package of acknowledge of yes or no
+
+
+
+
+            } else{
+                printf("Invalid Command!\n");
+
             }
+
+            for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
+
+
         }
+
+
+
+
+
+
+
+
+
+
+
         // in the state of log in but not in session
         while ((isLogin == 1) && (isinsession == 0)) {
             printf("You have logged in! Please input the instruction!\n");
             unsigned char *notInSessionCommandInput[2];
+            struct message loginpackage;
 
             for (int i = 0; i < 2; i++) {
-                notInSessionCommandInput[i] = (unsigned char *)malloc(
-                    sizeof(unsigned char) * MAX_COMMAND_LEN);
+                notInSessionCommandInput[i] = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
             }
+
             // process the command input
-            int notInSessioncommand =
-                processLogInCommand(notInSessionCommandInput);
+            int notInSessioncommand = processLogInCommand(notInSessionCommandInput);
 
             // command for quit the client
             if (notInSessioncommand == 0) {
                 printf("Client terminaton\n");
-                // send out the package for quit
+
+                // send out the package for log out
+                loginpackage = createLogoutPackage(userID);
+                sendMsg(socket,loginpackage);
+
+                //wait for ack?
+
 
                 // need to free the pointer
+                for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
                 return 0;
+
             } else if (notInSessioncommand == 1) {
                 // command for join session
                 // create the join session package and send
@@ -124,13 +154,21 @@ int main(int argc, char **argv) {
                 // command for create session
                 // create the create session package and send
 
+                //wait for ack
+                
                 // change the flag
                 isinsession = 1;
 
             } else if (notInSessioncommand == 3) {
                 printf("Requested to log out!\n");
+
                 // command for log out
-                // create package of logout and send
+                // send out the package for log out
+                loginpackage = createLogoutPackage(userID);
+                sendMsg(socket,loginpackage);
+
+
+                //wait for ack?
 
 
                 // change the flag
@@ -142,6 +180,8 @@ int main(int argc, char **argv) {
 
                 // command for list
                 // create package of list and send
+                loginpackage = createListPackage(userID);
+                sendMsg(socket,loginpackage);
 
 
                 //listen for the package of list 
@@ -154,6 +194,7 @@ int main(int argc, char **argv) {
             }
 
             // free the command pointer
+            for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
         }
 
         // in the state of in session;
@@ -321,13 +362,11 @@ int processInSessionCommand(unsigned char *command) {
 }
 
 
-struct message createListPackage(char* user){
-    // valid input
-    struct message package;
-    package.type = 12;
-    strcpy((char*)package.data,(char*)"list");
-    package.size = strlen((char*) "list");
-    strcpy((char*)package.source,user);
-    return package;
 
-}
+
+
+
+
+
+
+

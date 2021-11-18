@@ -20,6 +20,14 @@ struct message{
 void sendMsg(int s, struct message encodedM);
 struct message readMsg(char* incomingM);
 
+//function to create message function
+struct message createListPackage(char* user);
+struct message createLoginPackage(char* user,char*password);
+struct message createLogoutPackage(char* user);
+struct message createtextPackage(char* user,char*text);
+struct message createJoinSessionPackage(char* user,char*sessionID);
+struct message createCreateSessionPackage(char* user);
+struct message createLeaveSessionPackage(char* user);
 // message types
 /*
     1: [client -> server] login

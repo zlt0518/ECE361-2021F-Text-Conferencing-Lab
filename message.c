@@ -1,31 +1,105 @@
 #include "message.h"
 
-void sendMsg(int s, struct message encodedM)
-{
+#include "client.h"
+#include "server.h"
+#include "user.h"
+
+#define MAX_COMMAND_LEN 1000
+
+void sendMsg(int s, struct message encodedM) {
     char data_send[1050];
-    const int length = sprintf(data_send, "%d:%d:%s:%s", encodedM.type, encodedM.size, encodedM.source
-    , encodedM.data);
+    const int length = sprintf(data_send, "%d:%d:%s:%s", encodedM.type,encodedM.size, encodedM.source, encodedM.data);
     int sendInfo = send(s, data_send, length, 0);
-    if(sendInfo == -1)
-    {
+    if (sendInfo == -1) {
         perror("send");
     }
 }
 
-struct message readMsg(char* incomingM)
-{
+struct message readMsg(char* incomingM) {
     struct message decodedM;
     unsigned char sourceData[1050];
 
-    sscanf(incomingM, "%d:%d:%[^\n]s", &decodedM.type, &decodedM.size, sourceData);
+    sscanf(incomingM, "%d:%d:%[^\n]s", &decodedM.type, &decodedM.size,sourceData);
     // split source and data
     char* colon;
-    colon = strchr ((char*) sourceData, ':');
+    colon = strchr((char*)sourceData, ':');
     *colon = '\0';
     colon += sizeof(unsigned char);
-    strcpy((char*) decodedM.source, (char*) sourceData);
+    strcpy((char*)decodedM.source, (char*)sourceData);
 
-    strcpy((char*) decodedM.data, (char*) colon);
+    strcpy((char*)decodedM.data, (char*)colon);
 
     return decodedM;
+}
+
+// maybe just password in the content
+struct message createLoginPackage(char* user, char* password) {
+    // valid input and encoding the data
+    unsigned char* encodedData =
+        (unsigned char*)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
+
+    strcpy(encodedData, user);
+    encodedData[strlen((char*)encodedData)] = ':';
+    strcpy(encodedData, password);
+
+    struct message package;
+    package.type = 1;
+    strcpy((char*)package.data, (char*)"login");
+    package.size = strlen((char*)encodedData);
+    strcpy((char*)package.source, encodedData);
+
+    // free the pointer
+    free(encodedData);
+
+    return package;
+}
+
+struct message createLogoutPackage(char* user) {
+    // valid input
+    struct message package;
+    package.type = 4;
+    strcpy((char*)package.data, (char*)"logout");
+    package.size = strlen((char*)"logout");
+    strcpy((char*)package.source, user);
+    return package;
+}
+
+struct message createJoinSessionPackage(char* user, char* sessionID) {
+    // valid input
+    struct message package;
+    package.type = 5;
+    strcpy((char*)package.data, sessionID);
+    package.size = strlen(sessionID);
+    strcpy((char*)package.source, user);
+    return package;
+}
+
+struct message createLeaveSessionPackage(char* user) {
+    // valid input
+    struct message package;
+    package.type = 8;
+    strcpy((char*)package.data, (char*)"leavesession");
+    package.size = strlen((char*)"leavesession");
+    strcpy((char*)package.source, user);
+    return package;
+}
+
+struct message createCreateSessionPackage(char* user, char* sessionID) {
+    // valid input
+    struct message package;
+    package.type = 9;
+    strcpy((char*)package.data, sessionID);
+    package.size = strlen(sessionID);
+    strcpy((char*)package.source, user);
+    return package;
+}
+
+struct message createListPackage(char* user) {
+    // valid input
+    struct message package;
+    package.type = 12;
+    strcpy((char*)package.data, (char*)"list");
+    package.size = strlen((char*)"list");
+    strcpy((char*)package.source, user);
+    return package;
 }
