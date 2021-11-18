@@ -211,7 +211,6 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
             break;
         default:
             printf("no such message type\n");
-            break;
 
     }
 
