@@ -1,14 +1,19 @@
-#include "client.h"
-#include "command.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
+#include <unistd.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
 #include "message.h"
 #include "server.h"
 #include "user.h"
+#include "client.h"
+#include "command.h"
 
 #define MAXDATASIZE 1000
 #define MAX_NAME 1000
@@ -124,7 +129,7 @@ int main(int argc, char **argv) {
         while ((isLogin == 1) && (isinsession == 0)) {
             printf("You have logged in! Please input the instruction!\n");
             unsigned char *notInSessionCommandInput[2];
-            struct message loginpackage;
+            struct message loginPackage;
 
             for (int i = 0; i < 2; i++) {
                 notInSessionCommandInput[i] = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
@@ -138,8 +143,8 @@ int main(int argc, char **argv) {
                 printf("Client terminaton\n");
 
                 // send out the package for log out
-                loginpackage = createLogoutPackage(userID);
-                sendMsg(soc,loginpackage);
+                loginPackage = createLogoutPackage(userID);
+                sendMsg(soc,loginPackage);
 
                 // need to free the pointer
                 for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
@@ -148,8 +153,8 @@ int main(int argc, char **argv) {
             } else if (notInSessioncommand == 1) {
                 // command for join session
                 // create the join session package and send
-                loginpackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
-                sendMsg(soc,loginpackage);
+                loginPackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
+                sendMsg(soc,loginPackage);
 
                 //wait for ACK
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
@@ -177,8 +182,8 @@ int main(int argc, char **argv) {
             } else if (notInSessioncommand == 2) {
                 // command for create session
                 // create the create session package and send
-                loginpackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
-                sendMsg(soc,loginpackage);
+                loginPackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
+                sendMsg(soc,loginPackage);
 
                 //wait for ack
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);     
@@ -209,8 +214,8 @@ int main(int argc, char **argv) {
 
                 // command for log out
                 // send out the package for log out
-                loginpackage = createLogoutPackage(userID);
-                sendMsg(soc,loginpackage);
+                loginPackage = createLogoutPackage(userID);
+                sendMsg(soc,loginPackage);
 
                 // change the flag
                 isLogin = 0;
@@ -221,8 +226,8 @@ int main(int argc, char **argv) {
 
                 // command for list
                 // create package of list and send
-                loginpackage = createListPackage(userID);
-                sendMsg(soc,loginpackage);
+                loginPackage = createListPackage(userID);
+                sendMsg(soc,loginPackage);
 
                 //listen for the package of list 
                 //wait for ACK
@@ -239,6 +244,8 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 13){
                     printf("Successfully get the List of user and session");
+
+                    //print out the list
 
                 }else{
                     printf("Failed to query the list\n");
@@ -262,11 +269,120 @@ int main(int argc, char **argv) {
 
         // in the state of in session
         //need to add function select for multiplexing
-        while ((isLogin == 1) && (isinsession == 0)) {
-            printf("You are in the chat session Now! Please type in word to send or commands!\n");
+
+
+
+        while ((isLogin == 1) && (isinsession == 1)) {
+            printf("You are in the chat session Now! Please type in senetences to send or commands!\n");
+
+            fd_set read_fds;
+            fd_set master;    // master file descriptor list
+            FD_ZERO(&read_fds);
+            FD_ZERO(&master);    // clear the master and temp sets
+            FD_SET(soc, &master);
+
+            int selectVal = select(soc+1, &read_fds, NULL, NULL, NULL);
+
+            if(selectVal<0){
+                printf("Fail to do the select!");
+                continue;
+            }
+
+            if (FD_ISSET(soc, &fds)){
+                //receive the message
+                recv(soc, buffer, MAXDATASIZE, 0);
+                //deal with the message phrasing and print out the message
+
+
+
+            }else if (FD_ISSET(0, &fds)){
+            //send message
             unsigned char *inSessionCommandInput;
-            inSessionCommandInput = (unsigned char *)malloc(
-                sizeof(unsigned char) * MAX_COMMAND_LEN);
+            inSessionCommandInput = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
+            struct message inSesssionPackage;
+
+            // process the command input
+            int inSessioncommand = processInSessionCommand(inSessionCommandInput);
+                if(inSessioncommand==0){
+                    printf("Client terminaton\n");
+                    // command for quit session
+                    //create package of quit session and log out and send
+                    inSesssionPackage = createLeaveSessionPackage(userID);
+                    sendMsg(soc,inSesssionPackage);
+                    inSesssionPackage = createLogoutPackage(userID);
+                    sendMsg(soc,inSesssionPackage);
+                    
+                    //free pointers
+                    free(inSessionCommandInput);
+                    return 0;
+
+                }else if(inSessioncommand ==1){
+                    // command for leave session
+                    // create the leave session package and send
+                    inSesssionPackage = createLeaveSessionPackage(userID);
+                    sendMsg(soc,inSesssionPackage);
+
+                   // change the flag
+                   isinsession = 0;
+
+                }else if(inSessioncommand == 3){
+                // command for log out
+                // create package of leave session and logout and send
+                inSesssionPackage = createLeaveSessionPackage(userID);
+                sendMsg(soc,inSesssionPackage);
+                inSesssionPackage = createLogoutPackage(userID);
+                sendMsg(soc,inSesssionPackage);
+                
+                // change the flag
+                isinsession = 0;
+                isLogin = 0;
+
+                }else if(inSessioncommand == 2){
+
+                    printf("You cant ask for list when you are in session")
+                
+                
+                }else{
+                    //create the message and send
+                    
+                    
+
+
+                }
+
+                free(inSessionCommandInput);
+
+
+            }
+
+
+
+
+
+
+        }
+
+
+
+
+
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+printf("You are in the chat session Now! Please type in word to send or commands!\n");
+            unsigned char *inSessionCommandInput;
+            inSessionCommandInput = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
 
             // process the command input
             int inSessioncommand = processLogInCommand(inSessionCommandInput);
@@ -315,27 +431,4 @@ int main(int argc, char **argv) {
 
 
             }
-
-            //free pointers
-        }
-
-
-
-
-
-    }
-
-    return 0;
-}
-
-
-
-
-
-
-
-
-
-
-
 
