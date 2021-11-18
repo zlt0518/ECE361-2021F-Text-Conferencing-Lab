@@ -26,7 +26,7 @@ struct message createLoginPackage(char* user,char*password);
 struct message createLogoutPackage(char* user);
 struct message createtextPackage(char* user,char*text);
 struct message createJoinSessionPackage(char* user,char*sessionID);
-struct message createCreateSessionPackage(char* user);
+struct message createCreateSessionPackage(char* user,char* sessionID);
 struct message createLeaveSessionPackage(char* user);
 
 

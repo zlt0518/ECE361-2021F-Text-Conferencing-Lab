@@ -436,7 +436,7 @@ int main(int argc, char **argv) {
                 
                 }else{
                 //create the message and send
-                inSesssionPackage = createtextPackage(userID,command);
+                inSesssionPackage = createtextPackage(userID,(char*) inSessionCommandInput);
                 if(sendMsg(soc,inSesssionPackage) == -1)
                 {
                     printf("send error\n");
