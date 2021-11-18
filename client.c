@@ -93,7 +93,15 @@ int main(int argc, char **argv) {
 
                 // create the package for sending the log in info package
                 struct message unLoginPackage = createLoginPackage(userID, logInCommandInput[2]);
-                sendMsg(soc,unLoginPackage);
+                int sendByte = sendMsg(soc,unLoginPackage);
+
+                if(sendByte<0){
+
+                    for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
+                    continue;
+
+                }
+
 
                 // receive the package of acknowledge of yes or no
                 int unLoginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
@@ -144,7 +152,7 @@ int main(int argc, char **argv) {
 
                 // send out the package for log out
                 loginPackage = createLogoutPackage(userID);
-                sendMsg(soc,loginPackage);
+                int sendByte = sendMsg(soc,loginPackage);
 
                 // need to free the pointer
                 for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
@@ -154,7 +162,16 @@ int main(int argc, char **argv) {
                 // command for join session
                 // create the join session package and send
                 loginPackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
-                sendMsg(soc,loginPackage);
+                int sendByte = sendMsg(soc,loginPackage);
+
+
+                if(sendByte<0){
+
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
+                    continue;
+
+                }
+
 
                 //wait for ACK
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
@@ -178,12 +195,20 @@ int main(int argc, char **argv) {
 
                 }
                 
-
             } else if (notInSessioncommand == 2) {
                 // command for create session
                 // create the create session package and send
                 loginPackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
-                sendMsg(soc,loginPackage);
+                int sendByte = sendMsg(soc,loginPackage);
+
+                if(sendByte<0){
+
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
+                    continue;
+
+                }
+
+
 
                 //wait for ack
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);     
@@ -215,7 +240,15 @@ int main(int argc, char **argv) {
                 // command for log out
                 // send out the package for log out
                 loginPackage = createLogoutPackage(userID);
-                sendMsg(soc,loginPackage);
+                int sendByte = sendMsg(soc,loginPackage);
+
+                if(sendByte<0){
+
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
+                    continue;
+
+                }
+
 
                 // change the flag
                 isLogin = 0;
@@ -339,14 +372,13 @@ int main(int argc, char **argv) {
 
                 }else if(inSessioncommand == 2){
 
-                    printf("You cant ask for list when you are in session")
+                    printf("You cant ask for list when you are in session");
                 
                 
                 }else{
-                    //create the message and send
-                    
-                    
-
+                //create the message and send
+                inSesssionPackage = createtextPackage(userID,command);
+                sendMsg(soc,inSesssionPackage);
 
                 }
 

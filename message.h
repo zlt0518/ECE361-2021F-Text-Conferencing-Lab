@@ -17,7 +17,7 @@ struct message{
 };
 
 
-void sendMsg(int s, struct message encodedM);
+int sendMsg(int s, struct message encodedM);
 struct message readMsg(char* incomingM);
 
 //function to create message function
@@ -32,29 +32,28 @@ struct message createLeaveSessionPackage(char* user);
 
 // message types
 /*
-    1: [client -> server] login
-        <clientID, clientPW>
-    2: [server -> client] acknowledge successful login
-    3: [server -> client] negative acknowledgement successful login
+    1: login <clientID, clientPW>
+    2:  acknowledge successful login
+    3:  negative acknowledgement successful login
         <failure>
-    4: [client -> server] exit from the server
-    5: [client -> server] join a session
+    4:  exit from the server
+    5:  join a session
         <sessionID>
-    6: [server -> client] acknowledge successful join
+    6:  acknowledge successful join
         <sessionID>
-    7: [server -> client] acknowledge unsuccessful join
+    7:  acknowledge unsuccessful join
         <sessionID, failure>
-    8: [client -> server] leave session
-    9: [client -> server] create new session and join
+    8: leave session
+    9: create new session and join
         <sessionID>
-    10:  [server -> client] acknowledge new session
-    11:  [client -> server] send text in joined session
+    10:  acknowledge new session
+    11:  send text in joined session
         <text>
-    12:  [client -> server] query for list of online users and avaliable sessions
-    13:  [server -> client] reply query in message type 12
+    12:  query for list of online users and avaliable sessions
+    13:  reply query in message type 12
         <users and sessions list>
 
-	14: [server -> client] ack for exit
+	14:ack for exit
 
 */
 #endif
