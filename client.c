@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "packet.h"
+#include "message.h"
 #include "server.h"
 #include "user.h"
 
@@ -27,13 +27,13 @@ int main(int argc, char **argv) {
 
     while (true) {
         // the state of not login
-        while (islogin == 0) {
+        while (isLogin == 0) {
             printf("You are not log in! Please input the login information!\n");
 
             unsigned char *logInCommandInput[5];
             for (int i = 0; i < 5; i++) {
                 logInCommandInput[i] = (unsigned char *)malloc(
-                    sizeof(unsigned char) * MAX_COMMAND_LEN)
+                    sizeof(unsigned char) * MAX_COMMAND_LEN);
             }
 
             int logincommand = processLogInCommand(logInCommandInput);
@@ -87,13 +87,13 @@ int main(int argc, char **argv) {
             }
         }
         // in the state of log in but not in session
-        while ((islogin == 1) && (isinsession == 0)) {
+        while ((isLogin == 1) && (isinsession == 0)) {
             printf("You have logged in! Please input the instruction!\n");
             unsigned char *notInSessionCommandInput[2];
 
             for (int i = 0; i < 2; i++) {
                 notInSessionCommandInput[i] = (unsigned char *)malloc(
-                    sizeof(unsigned char) * MAX_COMMAND_LEN)
+                    sizeof(unsigned char) * MAX_COMMAND_LEN);
             }
             // process the command input
             int notInSessioncommand =
@@ -147,8 +147,8 @@ int main(int argc, char **argv) {
         }
 
         // in the state of in session;
-        while ((islogin == 1) && (isinsession == 0)) {
-            printf("You are in the chat session Now! Please type in word to send or commands!\n")
+        while ((isLogin == 1) && (isinsession == 0)) {
+            printf("You are in the chat session Now! Please type in word to send or commands!\n");
             unsigned char *inSessionCommandInput;
             inSessionCommandInput = (unsigned char *)malloc(
                 sizeof(unsigned char) * MAX_COMMAND_LEN);
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 
 
 
-            }else if(insessioncommand == 3){
+            }else if(inSessioncommand == 3){
                 // command for log out
                 // create package of leave session and logout and send
                 
@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
 
 
 
-            }else if(insessioncommand == 4){
+            }else if(inSessioncommand == 4){
                  //create the message to sent
             }
 
@@ -304,6 +304,6 @@ int processInSessionCommand(unsigned char *command) {
         return 0;
 
     } else {
-        return 4
+        return 4;
     }
 }
