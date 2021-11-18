@@ -40,13 +40,13 @@ struct message createLoginPackage(char* user, char* password) {
 
     strcpy(encodedData, user);
     encodedData[strlen((char*)encodedData)] = ':';
-    strcpy(encodedData, password);
+    strcat(encodedData, password);
 
     struct message package;
     package.type = 1;
-    strcpy((char*)package.data, (char*)"login");
+    strcpy((char*)package.data, (char*) encodedData);
     package.size = strlen((char*)encodedData);
-    strcpy((char*)package.source, encodedData);
+    strcpy((char*)package.source, user);
 
     // free the pointer
     free(encodedData);
