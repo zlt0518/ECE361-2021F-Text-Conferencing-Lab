@@ -1,3 +1,6 @@
+#ifndef SERVER_H
+#define SERVER_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -26,3 +29,4 @@ struct user_info{
 
 struct user_info database[MAX_USER];
 
+#endif

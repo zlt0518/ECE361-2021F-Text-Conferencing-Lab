@@ -12,8 +12,8 @@
 struct message{
 	unsigned int type;
 	unsigned int size;
-	unsigned char source[1050];
-	unsigned char data[1050];
+	unsigned char source[1000];
+	unsigned char data[1000];
 };
 
 
@@ -28,6 +28,8 @@ struct message createtextPackage(char* user,char*text);
 struct message createJoinSessionPackage(char* user,char*sessionID);
 struct message createCreateSessionPackage(char* user);
 struct message createLeaveSessionPackage(char* user);
+
+
 // message types
 /*
     1: [client -> server] login

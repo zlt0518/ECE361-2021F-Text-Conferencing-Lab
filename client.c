@@ -1,5 +1,5 @@
 #include "client.h"
-
+#include "command.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,9 +14,7 @@
 #define MAX_NAME 1000
 #define MAX_COMMAND_LEN 1000
 
-int processLogInCommand(unsigned char *commandLine[5]);
-int processNotInSessionCommand(unsigned char *command[2]);
-int processInSessionCommand(unsigned char *command);
+
 
 // part of the code is refered from Beej's guide
 
@@ -25,7 +23,7 @@ int main(int argc, char **argv) {
     bool isLogin = 0;
     bool isinsession = 0;
     int soc;
-    char buf[MAXDATASIZE];
+    char buffer[MAXDATASIZE];
     unsigned char userID[MAX_NAME];
 
     while (true) {
@@ -101,12 +99,13 @@ int main(int argc, char **argv) {
                     for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
                     continue;
                 }
+                struct message decodedMsg = readMsg(buffer);  
 
                 if(decodedMsg.type == 2){
-                    printf("Successfully login!\n")
+                    printf("Successfully login!\n");
                     isLogin = 1;
                 }else {
-                    printf("Failed to login!\n")
+                    printf("Failed to login!\n");
                 }
 
 
@@ -153,16 +152,20 @@ int main(int argc, char **argv) {
                 sendMsg(soc,loginpackage);
 
                 //wait for ACK
+                int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
+
                 if(loginByte<0){
                     printf("Error receiving\n");
                     //free pointers
-                    for (int i = 0; i < 2; i++) free(logInCommandInput[i]);
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
                     continue;
                 }
 
+                struct message decodedMsg = readMsg(buffer); 
+
                 if(decodedMsg.type == 6){
 
-                    printf("Successfully Created the session\n");
+                    printf("Successfully created the session\n");
                     isinsession = 1;
 
                 }else{
@@ -178,13 +181,16 @@ int main(int argc, char **argv) {
                 sendMsg(soc,loginpackage);
 
                 //wait for ack
-                                //wait for ACK
+                int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);     
+
                 if(loginByte<0){
                     printf("Error receiving\n");
                     //free pointers
-                    for (int i = 0; i < 2; i++) free(logInCommandInput[i]);
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
                     continue;
                 }
+
+                struct message decodedMsg = readMsg(buffer);
 
                 if(decodedMsg.type == 10){
 
@@ -219,24 +225,25 @@ int main(int argc, char **argv) {
                 sendMsg(soc,loginpackage);
 
                 //listen for the package of list 
-                                //wait for ACK
+                //wait for ACK
+                int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
+
                 if(loginByte<0){
                     printf("Error receiving\n");
                     //free pointers
-                    for (int i = 0; i < 2; i++) free(logInCommandInput[i]);
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
                     continue;
                 }
 
+                struct message decodedMsg = readMsg(buffer);
+
                 if(decodedMsg.type == 13){
-                    printf()
-
-
+                    printf("Successfully get the List of user and session");
 
                 }else{
                     printf("Failed to query the list\n");
 
                 }
-
 
 
             } else {
@@ -253,7 +260,8 @@ int main(int argc, char **argv) {
 
 
 
-        // in the state of in session;
+        // in the state of in session
+        //need to add function select for multiplexing
         while ((isLogin == 1) && (isinsession == 0)) {
             printf("You are in the chat session Now! Please type in word to send or commands!\n");
             unsigned char *inSessionCommandInput;
@@ -274,7 +282,7 @@ int main(int argc, char **argv) {
                 // command for leave session
                 // create the leave session package and send
 
-                
+
                 
 
 
@@ -320,104 +328,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int processLogInCommand(unsigned char *command[5]) {
-    // process the login command
 
-    /*
-    return 2 for illegal command
-    return 1 for get the info for the next step
-    return 0 for quit
-    */
-    unsigned char incomingMsg[MAXDATASIZE];
-    memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
-    scanf("%[^\n]s", incomingMsg);
-
-    sscanf((char *)incomingMsg, "%s", (char *)command[0]);
-
-    if (strcmp(command[0], "/login") == 0) {
-        // possible issue of less or more argument
-        sscanf((char *)incomingMsg, "%s %s %s %s %s", (char *)command[0],
-               (char *)command[1], (char *)command[2], (char *)command[3],
-               (char *)command[4]);
-
-        return 1;
-    } else if (strcmp(command[0], "/quit") == 0) {
-        return 0;
-    } else {
-        return 2;
-    }
-
-    return 2;
-}
-
-int processNotInSessionCommand(unsigned char *command[2]) {
-    /*
-    return 1 for join the session
-    return 2 for create session
-    return 3 for log out
-    return 4 for list
-    return 5 for illegal command
-    return 0 for quit
-    */
-
-    unsigned char incomingMsg[MAXDATASIZE];
-    memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
-    scanf("%[^\n]s", incomingMsg);
-
-    sscanf((char *)incomingMsg, "%s", (char *)command[0]);
-
-    if (strcmp(command[0], "/joinsession") == 0) {
-        sscanf((char *)incomingMsg, "%s %s", (char *)command[0],
-               (char *)command[1]);
-        return 1;
-    } else if (strcmp(command[0], "/createsession") == 0) {
-        sscanf((char *)incomingMsg, "%s %s", (char *)command[0],
-               (char *)command[1]);
-        return 2;
-    } else if (strcmp(command[0], "/logout") == 0) {
-        return 3;
-    } else if (strcmp(command[0], "/list") == 0) {
-        return 4;
-    } else if (strcmp(command[0], "/quit") == 0) {
-        return 0;
-    } else {
-        return 5;
-    }
-}
-
-
-
-int processInSessionCommand(unsigned char *command) {
-    /*
-    return 1 for leave the session
-    return 2 for list
-    return 3 for logout
-    return 4 for senetence sent
-    return 0 for quit
-    */
-
-    unsigned char incomingMsg[MAXDATASIZE];
-    memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
-    scanf("%[^\n]s", incomingMsg);
-
-    sscanf((char *)incomingMsg, "%s", (char *)command);
-
-    if (strcmp(command, "/leavesession") == 0) {
-        return 1;
-
-    } else if (strcmp(command, "/logout") == 0) {
-        return 3;
-
-    } else if (strcmp(command, "/list") == 0) {
-        return 2;
-
-    } else if (strcmp(command, "/quit") == 0) {
-        return 0;
-
-    } else {
-        return 4;
-    }
-}
 
 
 

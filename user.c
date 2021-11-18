@@ -15,10 +15,10 @@ void init_database()
     strcpy((char*) database[2].username, "C" );
     strcpy((char*) database[3].username, "D" );
 
-    strcpy((char*) database[0].password, "1" );
-    strcpy((char*) database[1].password, "2" );
-    strcpy((char*) database[2].password, "3" );
-    strcpy((char*) database[3].password, "4" );
+    strcpy((char*) database[0].password, "ihatenetworks" );
+    strcpy((char*) database[1].password, "ece361damn" );
+    strcpy((char*) database[2].password, "ece302sucks" );
+    strcpy((char*) database[3].password, "ilovealogrithm" );
     
 }
 

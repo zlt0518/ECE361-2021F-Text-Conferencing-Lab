@@ -26,7 +26,7 @@ struct message readMsg(char* incomingM) {
     colon += sizeof(unsigned char);
     strcpy((char*)decodedM.source, (char*)sourceData);
     strcpy((char*)decodedM.data, (char*)colon);
-    
+
     return decodedM;
 }
 
@@ -100,4 +100,14 @@ struct message createListPackage(char* user) {
     package.size = strlen((char*)"list");
     strcpy((char*)package.source, user);
     return package;
+}
+
+
+struct message createtextPackage(char* user,char*text){
+
+
+
+
+
+    
 }
