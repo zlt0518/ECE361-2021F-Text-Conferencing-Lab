@@ -190,7 +190,11 @@ void send_txt(unsigned char* un, unsigned char* txt)
         {
             if(strcmp((char*) crtSession, (char*) database[i].sessionID) == 0)
             {
-                sendMsg(database[i].sockfd, sendM);
+                if(sendMsg(database[i].sockfd, sendM) == -1)
+                {
+                    printf("send error\n");
+                    return;
+                }
             }
         }
     }

@@ -106,7 +106,11 @@ int main(int argc, char** argv){
 
                         // send reply
                         if(sendM.type != 15){
-                            sendMsg(newfd, sendM);
+                            if(sendMsg(newfd, sendM)== -1)
+                            {
+                                printf("send error\n");
+                                break;
+                            } 
                             printf("replied client request.\n");
                         }
                     }
@@ -115,7 +119,7 @@ int main(int argc, char** argv){
                 {
                    int nbytes;
                     if ((nbytes = recv(i, buffer, buffer_size-1, 0)) == -1) {
-                        perror("recv");
+                        perror("recv\n");
                         exit(1);
                     }
                     buffer[nbytes] = '\0';
@@ -129,7 +133,11 @@ int main(int argc, char** argv){
 
                     // send reply
                     if(sendM.type != 11 && sendM.type != 15){
-                        sendMsg(newfd, sendM);
+                        if(sendMsg(newfd, sendM) == -1)
+                        {
+                            printf("send error\n");
+                            break;
+                        }
                         printf("replied client request.\n");
                     }
                     if(sendM.type == 3 || sendM.type == 14){
