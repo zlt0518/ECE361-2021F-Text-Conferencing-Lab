@@ -41,7 +41,7 @@ void listUserSession(unsigned char* reply)
     }
 }
 
-bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source )
+bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply )
 {
     for(int i = 0; i < MAX_USER; i++)
     {

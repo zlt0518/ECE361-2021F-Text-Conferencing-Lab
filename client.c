@@ -31,6 +31,11 @@ int main(int argc, char **argv) {
     char buffer[MAXDATASIZE];
     unsigned char userID[MAX_NAME];
 
+    fd_set read_fds;
+    fd_set master;    // master file descriptor list
+    FD_ZERO(&read_fds);
+    FD_ZERO(&master);    // clear the master and temp sets
+
     while (true) {
         // the state of not login
         while (isLogin == 0) {
@@ -118,7 +123,7 @@ int main(int argc, char **argv) {
                     printf("Successfully login!\n");
                     isLogin = 1;
                 }else {
-                    printf("Failed to login!\n");
+                    printf("Failed to login!\n %s\n", decodedMsg.data);
                 }
 
 
@@ -195,7 +200,7 @@ int main(int argc, char **argv) {
                     isinsession = 1;
 
                 }else{
-                    printf("Failed to join the session\n");
+                    printf("Failed to join the session.\n %s\n", decodedMsg.data);
 
                 }
                 
@@ -285,8 +290,8 @@ int main(int argc, char **argv) {
                 struct message decodedMsg = readMsg(buffer);
 
                 if(decodedMsg.type == 13){
-                    printf("Successfully get the List of user and session");
-
+                    printf("Successfully get the List of user and session\n");
+                    printf("%[^\n]s\n", decodedMsg.data);
                     //print out the list
 
                 }else{
@@ -312,32 +317,44 @@ int main(int argc, char **argv) {
         // in the state of in session
         //need to add function select for multiplexing
 
+        if((isLogin == 1) && (isinsession == 1))
+        {
+            FD_SET(soc, &master);
+        }
+
 
 
         while ((isLogin == 1) && (isinsession == 1)) {
             printf("You are in the chat session Now! Please type in senetences to send or commands!\n");
 
-            fd_set read_fds;
-            fd_set master;    // master file descriptor list
-            FD_ZERO(&read_fds);
-            FD_ZERO(&master);    // clear the master and temp sets
-            FD_SET(soc, &master);
+            read_fds = master;
 
             int selectVal = select(soc+1, &read_fds, NULL, NULL, NULL);
 
             if(selectVal<0){
-                printf("Fail to do the select!");
+                printf("Fail to do the select!\n");
                 continue;
             }
 
-            if (FD_ISSET(soc, &fds)){
+            if (FD_ISSET(soc, &read_fds)){
                 //receive the message
-                recv(soc, buffer, MAXDATASIZE, 0);
+                int insessionByte = recv(soc, buffer, MAXDATASIZE, 0);
                 //deal with the message phrasing and print out the message
+                if(insessionByte == -1)
+                {
+                    printf("Error receiving\n");
+                    continue;
+                }
+                struct message decodedMsg = readMsg(buffer);
+
+                if(decodedMsg.type == 11)
+                {
+                    printf("%s", decodedMsg.data);
+                }
+                
 
 
-
-            }else if (FD_ISSET(0, &fds)){
+            }else if (FD_ISSET(0, &read_fds)){
             //send message
             unsigned char *inSessionCommandInput;
             inSessionCommandInput = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
@@ -363,6 +380,11 @@ int main(int argc, char **argv) {
                         free(inSessionCommandInput);
                         continue;
                     }
+
+                    close(soc);
+                    FD_CLR(soc,&master);
+                    FD_CLR(soc,&read_fds);
+                    
                     
                     //free pointers
                     free(inSessionCommandInput);
@@ -400,13 +422,16 @@ int main(int argc, char **argv) {
                     continue;
                 }
                 
+                close(soc);
+                FD_CLR(soc,&master);
+                FD_CLR(soc,&read_fds);
                 // change the flag
                 isinsession = 0;
                 isLogin = 0;
 
                 }else if(inSessioncommand == 2){
 
-                    printf("You cant ask for list when you are in session");
+                    printf("You can't ask for list when you are in session\n");
                 
                 
                 }else{

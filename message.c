@@ -13,7 +13,7 @@
 #define MAX_COMMAND_LEN 1000
 
 int sendMsg(int s, struct message encodedMessage) {
-    char data_send[1050];
+    char data_send[1000];
     const int length = sprintf(data_send, "%d:%d:%s:%s", encodedMessage.type,encodedMessage.size, encodedMessage.source, encodedMessage.data);
     int sendInfo = send(s, data_send, length, 0);
     if (sendInfo < 0) {
@@ -41,9 +41,9 @@ struct message readMsg(char* incomingM) {
 struct message createLoginPackage(char* user, char* password) {
     char* encodedData = (char*)malloc(sizeof(char) * MAX_COMMAND_LEN);
 
-    strcpy(encodedData, user);
-    encodedData[strlen((char*)encodedData)] = ':';
-    strcat(encodedData, password);
+    strcpy(encodedData, password);
+    //encodedData[strlen((char*)encodedData)] = ':';
+    //strcat(encodedData, password);
 
     struct message package;
     package.type = 1;
@@ -109,7 +109,7 @@ struct message createListPackage(char* user) {
 
 struct message createtextPackage(char* user,char*text){
     struct message package;
-    package.type = 9;
+    package.type = 11;
     strcpy((char*)package.data, text);
     package.size = strlen(text);
     strcpy((char*)package.source, user);

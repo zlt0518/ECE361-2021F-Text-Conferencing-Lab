@@ -105,14 +105,20 @@ int main(int argc, char** argv){
                         
 
                         // send reply
-                        if(sendM.type != 15){
-                            if(sendMsg(newfd, sendM)== -1)
-                            {
-                                printf("send error\n");
-                                break;
-                            } 
-                            printf("replied client request.\n");
+                        if(sendMsg(newfd, sendM)== -1)
+                        {
+                            printf("send error\n");
+                            continue;
+                        } 
+                        printf("replied client request.\n");
+
+                        if(sendM.type == 3)
+                        {
+                            close(newfd);
+                            FD_CLR(newfd, &master);
+                            printf("client is logged in or wrong ID/PW.\n");
                         }
+                        
                     }
                 } 
                 else 
@@ -120,7 +126,7 @@ int main(int argc, char** argv){
                    int nbytes;
                     if ((nbytes = recv(i, buffer, buffer_size-1, 0)) == -1) {
                         perror("recv\n");
-                        exit(1);
+                        continue;
                     }
                     buffer[nbytes] = '\0';
 
@@ -167,16 +173,7 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
     {
         case 1:
         {
-            unsigned char un[buffer_size];
-            unsigned char pw[buffer_size];
-
-            char* space;
-            space = strchr((char*) recvM.data, ' ');
-            *space = '\0';
-            strcpy((char*) un, (char*) recvM.data);
-            strcpy((char*) pw, space);
-
-            if(login(their_addr,s,un,pw,data_fill,source))
+            if(login(their_addr,s,recvM.source,recvM.data,data_fill))
             {
                 return 2;
             }

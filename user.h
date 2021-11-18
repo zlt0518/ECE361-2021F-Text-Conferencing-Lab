@@ -17,7 +17,7 @@
 
 void init_database();
 
-bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply, unsigned char* source );
+bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char* pw, unsigned char* reply);
 
 void logout(unsigned char* un);
 
