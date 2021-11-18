@@ -320,6 +320,8 @@ int main(int argc, char **argv) {
         if((isLogin == 1) && (isinsession == 1))
         {
             FD_SET(soc, &master);
+            FD_SET(0,&master);
+            // add the socket to server and standard input socket to master fd_set
         }
 
 
