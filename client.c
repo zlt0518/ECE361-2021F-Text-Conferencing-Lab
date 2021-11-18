@@ -153,6 +153,10 @@ int main(int argc, char **argv) {
                 // send out the package for log out
                 loginPackage = createLogoutPackage(userID);
                 int sendByte = sendMsg(soc,loginPackage);
+                if(sendByte == -1)
+                {
+                    printf("send error\n");
+                }
 
                 // need to free the pointer
                 for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
@@ -260,7 +264,12 @@ int main(int argc, char **argv) {
                 // command for list
                 // create package of list and send
                 loginPackage = createListPackage(userID);
-                sendMsg(soc,loginPackage);
+                if(sendMsg(soc,loginPackage) == -1)
+                {
+                    printf("send error\n");
+                    for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
+                    continue;
+                }
 
                 //listen for the package of list 
                 //wait for ACK
@@ -341,9 +350,19 @@ int main(int argc, char **argv) {
                     // command for quit session
                     //create package of quit session and log out and send
                     inSesssionPackage = createLeaveSessionPackage(userID);
-                    sendMsg(soc,inSesssionPackage);
+                    if(sendMsg(soc,inSesssionPackage) == -1)
+                    {
+                        printf("send error\n");
+                        free(inSessionCommandInput);
+                        continue;
+                    }
                     inSesssionPackage = createLogoutPackage(userID);
-                    sendMsg(soc,inSesssionPackage);
+                    if(sendMsg(soc,inSesssionPackage) == -1)
+                    {
+                        printf("send error\n");
+                        free(inSessionCommandInput);
+                        continue;
+                    }
                     
                     //free pointers
                     free(inSessionCommandInput);
@@ -353,7 +372,12 @@ int main(int argc, char **argv) {
                     // command for leave session
                     // create the leave session package and send
                     inSesssionPackage = createLeaveSessionPackage(userID);
-                    sendMsg(soc,inSesssionPackage);
+                    if(sendMsg(soc,inSesssionPackage) == -1)
+                    {
+                        printf("send error\n");
+                        free(inSessionCommandInput);
+                        continue;
+                    }
 
                    // change the flag
                    isinsession = 0;
@@ -362,9 +386,19 @@ int main(int argc, char **argv) {
                 // command for log out
                 // create package of leave session and logout and send
                 inSesssionPackage = createLeaveSessionPackage(userID);
-                sendMsg(soc,inSesssionPackage);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    free(inSessionCommandInput);
+                    continue;
+                }
                 inSesssionPackage = createLogoutPackage(userID);
-                sendMsg(soc,inSesssionPackage);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    free(inSessionCommandInput);
+                    continue;
+                }
                 
                 // change the flag
                 isinsession = 0;
@@ -378,7 +412,12 @@ int main(int argc, char **argv) {
                 }else{
                 //create the message and send
                 inSesssionPackage = createtextPackage(userID,command);
-                sendMsg(soc,inSesssionPackage);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    free(inSessionCommandInput);
+                    continue;
+                }
 
                 }
 
@@ -404,63 +443,4 @@ int main(int argc, char **argv) {
 }
 
 
-
-
-
-
-
-
-
-
-printf("You are in the chat session Now! Please type in word to send or commands!\n");
-            unsigned char *inSessionCommandInput;
-            inSessionCommandInput = (unsigned char *)malloc(sizeof(unsigned char) * MAX_COMMAND_LEN);
-
-            // process the command input
-            int inSessioncommand = processLogInCommand(inSessionCommandInput);
-
-            if(inSessioncommand==0){
-                printf("Client terminaton\n");
-                // command for quit session
-
-                //free pointers
-                return 0;
-
-            }else if(inSessioncommand ==1){
-                // command for leave session
-                // create the leave session package and send
-
-
-                
-
-
-                // change the flag
-                isinsession = 0;
-
-
-
-            }else if(inSessioncommand ==2){
-                // command for list
-                // create package of list and send
-
-
-
-            }else if(inSessioncommand == 3){
-                // command for log out
-                // create package of leave session and logout and send
-                
-                // change the flag
-                isinsession = 0;
-                isLogin = 0;
-
-
-
-
-
-
-            }else if(inSessioncommand == 4){
-                 //create the message to sent
-
-
-            }
 
