@@ -2,7 +2,7 @@
 #include "server.h"
 #include "user.h"
 
-#define buffer_size 1050
+#define buffer_size 1000
 
 //part of the code is derived from Beej's guide
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv){
 
     //get the port number
     if (argc !=2) {
-        printf("Invalid number of arguments!");
+        printf("usage: server <port number>\n");
         return(1);
     }
 
@@ -107,7 +107,7 @@ int main(int argc, char** argv){
                         // send reply
                         if(sendM.type != 15){
                             sendMsg(newfd, sendM);
-                            printf("[INFO] ACK back to client.\n");
+                            printf("replied client request.\n");
                         }
                     }
                 } 
@@ -130,7 +130,7 @@ int main(int argc, char** argv){
                     // send reply
                     if(sendM.type != 11 && sendM.type != 15){
                         sendMsg(newfd, sendM);
-                        printf("[INFO] ACK back to client.\n");
+                        printf("replied client request.\n");
                     }
                     if(sendM.type == 3 || sendM.type == 14){
                         close(i);

@@ -17,15 +17,12 @@ void sendMsg(int s, struct message encodedM) {
 
 struct message readMsg(char* incomingM) {
     struct message decodedM;
-    unsigned char sourceData[1050];
+    unsigned char source[1000];
+    unsigned char data[1000];
 
-    sscanf(incomingM, "%d:%d:%[^\n]s", &decodedM.type, &decodedM.size,sourceData);
-    // split source and data
-    char* colon;
-    colon = strchr((char*)sourceData, ':');
-    colon += sizeof(unsigned char);
-    strcpy((char*)decodedM.source, (char*)sourceData);
-    strcpy((char*)decodedM.data, (char*)colon);
+    sscanf(incomingM, "%d:%d:%s:%[^\n]s", &decodedM.type, &decodedM.size,source,data);
+    strcpy((char*)decodedM.source, (char*)source);
+    strcpy((char*)decodedM.data, (char*)data);
 
     return decodedM;
 }
