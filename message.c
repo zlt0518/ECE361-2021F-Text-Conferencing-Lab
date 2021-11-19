@@ -36,7 +36,7 @@ struct message readMsg(char* incomingM) {
     colon += sizeof(unsigned char);
 
     strcpy((char*)decodedM.source, (char*)readstring);
-    strcpy((char*)decodedM.data, (char*)colon);
+    strncpy((char*)decodedM.data, (char*)colon, decodedM.size+1);
 
     return decodedM;
 }

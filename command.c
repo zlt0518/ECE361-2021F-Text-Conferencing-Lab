@@ -61,7 +61,7 @@ int processNotInSessionCommand(unsigned char *command[2]) {
     scanf("%[^\n]s", incomingMsg);
     setbuf(stdin,NULL);
 
-    printf("1");
+    //printf("1");
     sscanf((char *)incomingMsg, "%s", (char *)command[0]);
     printf("%s\n", (char *)command[0]);
     printf("%s\n", (char *)incomingMsg);
@@ -103,7 +103,7 @@ int processInSessionCommand(unsigned char *command) {
     scanf("%[^\n]s", incomingMsg);
     setbuf(stdin,NULL);
 
-    sscanf((char *)incomingMsg, "%s", (char *)command);
+    sscanf((char *)incomingMsg, "%[^\n]s", (char *)command);
 
     if (strcmp(command, "/leavesession") == 0) {
         return 1;

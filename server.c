@@ -102,7 +102,8 @@ int main(int argc, char** argv){
                 } 
                 else 
                 {
-                   int nbytes;
+                    // we hear something from connected user
+                    int nbytes;
                     if ((nbytes = recv(i, buffer, buffer_size-1, 0)) == -1) {
                         perror("recv\n");
                         continue;
@@ -118,8 +119,8 @@ int main(int argc, char** argv){
                     printf("%d:%d:%s:%s\n", sendM.type, sendM.size, sendM.source, sendM.data);
 
                     // send reply
-                    if(sendM.type != 11){
-                        if(sendMsg(newfd, sendM) == -1)
+                    if(sendM.type != 11 && sendM.type != 15){
+                        if(sendMsg(i, sendM) == -1)
                         {
                             printf("send error\n");
                             break;
@@ -146,11 +147,15 @@ int main(int argc, char** argv){
 
 int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, unsigned char* data_fill, unsigned char* source)
 {
+    // read and fill a message struct and deserialize
     struct message recvM = readMsg(buffer);
     strcpy((char*) source, "server");
 
     printf("%d   %d   %s  %s\n", recvM.type, recvM.size, recvM.source, recvM.data);
 
+    // according to the message type, call different processing functions
+    // numbers are in accordance with lab handout chart (14 is logout ack, 15 is leavesession ack, for 
+    // server internal use, not actually sent out to client)
     switch(recvM.type)
     {
         case 1:

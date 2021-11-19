@@ -188,7 +188,8 @@ void send_txt(unsigned char* un, unsigned char* txt)
     {
         if(database[i].isInSession)
         {
-            if(strcmp((char*) crtSession, (char*) database[i].sessionID) == 0)
+            if(strcmp((char*) crtSession, (char*) database[i].sessionID) == 0
+                && strcmp((char*) un, (char*) database[i].username) != 0)
             {
                 if(sendMsg(database[i].sockfd, sendM) == -1)
                 {

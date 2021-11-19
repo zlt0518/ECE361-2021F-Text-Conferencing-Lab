@@ -110,6 +110,12 @@ int main(int argc, char **argv) {
 
 
                 // receive the package of acknowledge of yes or no
+                // clear buffer before receiving new content
+                for(int m = 0; m < MAXDATASIZE;m++)
+                {
+                    buffer[m] = '\0';
+                }
+
                 int unLoginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
 
                 if(unLoginByte<0){
@@ -185,6 +191,12 @@ int main(int argc, char **argv) {
 
 
                 //wait for ACK
+                // clear buffer before receiving new content
+                for(int m = 0; m < MAXDATASIZE;m++)
+                {
+                    buffer[m] = '\0';
+                }
+
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
 
                 if(loginByte<0){
@@ -222,6 +234,12 @@ int main(int argc, char **argv) {
 
 
                 //wait for ack
+                // clear buffer before receiving new content
+                for(int m = 0; m < MAXDATASIZE;m++)
+                {
+                    buffer[m] = '\0';
+                }
+
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);     
 
                 if(loginByte<0){
@@ -280,6 +298,12 @@ int main(int argc, char **argv) {
 
                 //listen for the package of list 
                 //wait for ACK
+                // clear buffer before receiving new content
+                for(int m = 0; m < MAXDATASIZE;m++)
+                {
+                    buffer[m] = '\0';
+                }
+
                 int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
 
                 if(loginByte<0){
@@ -293,7 +317,7 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 13){
                     printf("Successfully get the List of user and session\n");
-                    printf("%[^\n]s\n", decodedMsg.data);
+                    printf("%s\n", decodedMsg.data);
                     //print out the list
 
                 }else{
@@ -342,6 +366,12 @@ int main(int argc, char **argv) {
 
             if (FD_ISSET(soc, &read_fds)){
                 //receive the message
+                // clear buffer before receiving new content
+                for(int m = 0; m < MAXDATASIZE;m++)
+                {
+                    buffer[m] = '\0';
+                }
+
                 int insessionByte = recv(soc, buffer, MAXDATASIZE, 0);
                 //deal with the message phrasing and print out the message
                 if(insessionByte == -1)
@@ -353,7 +383,7 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 11)
                 {
-                    printf("%s", decodedMsg.data);
+                    printf("%s\n", decodedMsg.data);
                 }
                 
 
@@ -369,16 +399,7 @@ int main(int argc, char **argv) {
                 if(inSessioncommand==0){
                     printf("Client terminaton\n");
                     // command for quit session
-                    //create package of quit session and log out and send
-                    inSesssionPackage = createLeaveSessionPackage(userID);
-                    if(sendMsg(soc,inSesssionPackage) == -1)
-                    {
-                        printf("send error\n");
-                        free(inSessionCommandInput);
-                        continue;
-                    }
-
-                    recv(soc, buffer, MAXDATASIZE-1, 0);
+                    //create package of complete log out and send
 
                     inSesssionPackage = createLogoutPackage(userID);
                     if(sendMsg(soc,inSesssionPackage) == -1)
@@ -415,14 +436,6 @@ int main(int argc, char **argv) {
                 // command for log out
                 // create package of leave session and logout and send
                 inSesssionPackage = createLeaveSessionPackage(userID);
-                if(sendMsg(soc,inSesssionPackage) == -1)
-                {
-                    printf("send error\n");
-                    free(inSessionCommandInput);
-                    continue;
-                }
-
-                recv(soc, buffer, MAXDATASIZE-1, 0);
 
                 inSesssionPackage = createLogoutPackage(userID);
                 if(sendMsg(soc,inSesssionPackage) == -1)
