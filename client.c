@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 10){
 
-                    printf("Successfully created the session %s\n"notInSessionCommandInput[1]);
+                    printf("Successfully created the session %s\n",notInSessionCommandInput[1]);
                     //change the flag
                     isinsession = 1;
 
