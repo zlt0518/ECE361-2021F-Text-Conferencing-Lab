@@ -63,8 +63,8 @@ int processNotInSessionCommand(unsigned char *command[2]) {
 
     //printf("1");
     sscanf((char *)incomingMsg, "%s", (char *)command[0]);
-    printf("%s\n", (char *)command[0]);
-    printf("%s\n", (char *)incomingMsg);
+    //printf("%s\n", (char *)command[0]);
+    //printf("%s\n", (char *)incomingMsg);
 
     if (strcmp(command[0], "/joinsession") == 0) {
         sscanf((char *)incomingMsg, "%s %s", (char *)command[0],

@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
             // process the command input
             int notInSessioncommand = processNotInSessionCommand(notInSessionCommandInput);
 
-            printf("%d\n", &notInSessioncommand);
+            //printf("%d\n", &notInSessioncommand);
             // command for quit the client
             if (notInSessioncommand == 0) {
                 printf("Client terminaton\n");
