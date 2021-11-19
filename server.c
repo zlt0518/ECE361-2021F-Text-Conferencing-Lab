@@ -118,7 +118,7 @@ int main(int argc, char** argv){
                     printf("%d:%d:%s:%s\n", sendM.type, sendM.size, sendM.source, sendM.data);
 
                     // send reply
-                    if(sendM.type != 11 && sendM.type != 15){
+                    if(sendM.type != 11){
                         if(sendMsg(newfd, sendM) == -1)
                         {
                             printf("send error\n");
@@ -167,7 +167,7 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
         }
         case 4:
             leaveSession(recvM.source);
-            logout(source);
+            logout(recvM.source);
             return 14;
             break;
         case 5:

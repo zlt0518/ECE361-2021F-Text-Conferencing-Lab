@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     while (true) {
         // the state of not login
         while (isLogin == 0) {
-            //printf("You are not log in! Please input the login information!\n");
+            printf("You are not log in! Please input the login information!\n");
 
             unsigned char *logInCommandInput[5];
             for (int i = 0; i < 5; i++) {
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 
 
             } else{
-                //printf("Invalid Command!\n");
+                printf("Invalid Command!\n");
             }
 
             for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
@@ -150,8 +150,9 @@ int main(int argc, char **argv) {
             }
 
             // process the command input
-            int notInSessioncommand = processLogInCommand(notInSessionCommandInput);
+            int notInSessioncommand = processNotInSessionCommand(notInSessionCommandInput);
 
+            printf("%d\n", &notInSessioncommand);
             // command for quit the client
             if (notInSessioncommand == 0) {
                 printf("Client terminaton\n");
@@ -208,7 +209,7 @@ int main(int argc, char **argv) {
             } else if (notInSessioncommand == 2) {
                 // command for create session
                 // create the create session package and send
-                loginPackage = createJoinSessionPackage(userID,notInSessionCommandInput[1]);
+                loginPackage = createCreateSessionPackage(userID,notInSessionCommandInput[1]);
                 int sendByte = sendMsg(soc,loginPackage);
 
                 if(sendByte<0){
@@ -376,6 +377,9 @@ int main(int argc, char **argv) {
                         free(inSessionCommandInput);
                         continue;
                     }
+
+                    recv(soc, buffer, MAXDATASIZE-1, 0);
+
                     inSesssionPackage = createLogoutPackage(userID);
                     if(sendMsg(soc,inSesssionPackage) == -1)
                     {
@@ -417,6 +421,9 @@ int main(int argc, char **argv) {
                     free(inSessionCommandInput);
                     continue;
                 }
+
+                recv(soc, buffer, MAXDATASIZE-1, 0);
+
                 inSesssionPackage = createLogoutPackage(userID);
                 if(sendMsg(soc,inSesssionPackage) == -1)
                 {

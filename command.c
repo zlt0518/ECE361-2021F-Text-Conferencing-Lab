@@ -25,6 +25,7 @@ int processLogInCommand(unsigned char *command[5]) {
     unsigned char incomingMsg[MAXDATASIZE];
     memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
     scanf("%[^\n]s", incomingMsg);
+    setbuf(stdin,NULL);
 
     sscanf((char *)incomingMsg, "%s", (char *)command[0]);
 
@@ -58,8 +59,12 @@ int processNotInSessionCommand(unsigned char *command[2]) {
     unsigned char incomingMsg[MAXDATASIZE];
     memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
     scanf("%[^\n]s", incomingMsg);
+    setbuf(stdin,NULL);
 
+    printf("1");
     sscanf((char *)incomingMsg, "%s", (char *)command[0]);
+    printf("%s\n", (char *)command[0]);
+    printf("%s\n", (char *)incomingMsg);
 
     if (strcmp(command[0], "/joinsession") == 0) {
         sscanf((char *)incomingMsg, "%s %s", (char *)command[0],
@@ -78,6 +83,8 @@ int processNotInSessionCommand(unsigned char *command[2]) {
     } else {
         return 5;
     }
+
+    return 4;
 }
 
 
@@ -94,6 +101,7 @@ int processInSessionCommand(unsigned char *command) {
     unsigned char incomingMsg[MAXDATASIZE];
     memset(incomingMsg, '\0', sizeof(unsigned char) * MAXDATASIZE);
     scanf("%[^\n]s", incomingMsg);
+    setbuf(stdin,NULL);
 
     sscanf((char *)incomingMsg, "%s", (char *)command);
 
