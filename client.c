@@ -143,11 +143,16 @@ int main(int argc, char **argv) {
 
         }
 
+        if((isLogin == 1) && (isinsession == 0)){
+            printf("You have logged in! Please input the instruction!\n");
+
+        }
+
 
 
         // in the state of log in but not in session
         while ((isLogin == 1) && (isinsession == 0)) {
-            printf("You have logged in! Please input the instruction!\n");
+          
             unsigned char *notInSessionCommandInput[2];
             struct message loginPackage;
 
@@ -210,11 +215,11 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 6){
 
-                    printf("Successfully created the session\n");
+                    printf("Successfully joined the session %s\n",notInSessionCommandInput[1]);
                     isinsession = 1;
 
                 }else{
-                    printf("Failed to join the session.\n %s\n", decodedMsg.data);
+                    printf("Failed to join the session %s\n", decodedMsg.data);
 
                 }
                 
@@ -231,9 +236,7 @@ int main(int argc, char **argv) {
 
                 }
 
-
-
-                //wait for ack
+                // wait for ack
                 // clear buffer before receiving new content
                 for(int m = 0; m < MAXDATASIZE;m++)
                 {
@@ -253,7 +256,7 @@ int main(int argc, char **argv) {
 
                 if(decodedMsg.type == 10){
 
-                    printf("Successfully Created the session\n");
+                    printf("Successfully created the session %s\n"notInSessionCommandInput[1]);
                     //change the flag
                     isinsession = 1;
 
@@ -327,7 +330,7 @@ int main(int argc, char **argv) {
 
 
             } else {
-                printf("Ilegal Command, Please input an valid command!");
+                printf("Ilegal Command, Please input an valid command!\n");
 
             }
 
@@ -348,12 +351,13 @@ int main(int argc, char **argv) {
             FD_SET(soc, &master);
             FD_SET(0,&master);
             // add the socket to server and standard input socket to master fd_set
+            printf("You are in the chat session Now! Please type in senetences to send or commands!\n");
+
         }
 
 
 
         while ((isLogin == 1) && (isinsession == 1)) {
-            printf("You are in the chat session Now! Please type in senetences to send or commands!\n");
 
             read_fds = master;
 
@@ -471,13 +475,7 @@ int main(int argc, char **argv) {
 
                 free(inSessionCommandInput);
 
-
             }
-
-
-
-
-
 
         }
 
