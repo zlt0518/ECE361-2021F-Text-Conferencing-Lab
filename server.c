@@ -20,7 +20,7 @@ int main(int argc, char** argv){
 
     //get the port number
     if (argc !=2) {
-        printf("usage: server <port number>\n");
+        printf("Usage: server <port number>\n");
         return(1);
     }
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv){
 
     // start listening to the socket
     if(listen(listener, 10) == -1){
-        perror("listen Error");
+        printf("listen Error");
         exit(1);
     }
 
@@ -71,7 +71,7 @@ int main(int argc, char** argv){
         read_fds = master;
         if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
         {
-            perror("select");
+            printf("select");
             exit(4);
         }
 
@@ -89,7 +89,7 @@ int main(int argc, char** argv){
 
                     if (newfd == -1) 
                     {
-                        perror("accept");
+                        printf("accept");
                     } 
                     else 
                     {
@@ -125,14 +125,14 @@ int main(int argc, char** argv){
                             printf("send error\n");
                             break;
                         }
-                        printf("replied client request.\n");
+                        printf("Replied client request.\n");
                     }
                     if(sendM.type == 3 || sendM.type == 14){
                         close(i);
                         FD_CLR(i, &master);
                     }
                     if(sendM.type == 3){
-                        printf("client is logged in or wrong ID/PW.\n");
+                        printf("Client is logged in or wrong ID/PW.\n");
                     }else if(sendM.type == 14){
                         printf("Client Logout.\n");
                     }

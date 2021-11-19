@@ -18,7 +18,7 @@ void init_database()
     strcpy((char*) database[0].password, "ihatenetworks" );
     strcpy((char*) database[1].password, "ece361damn" );
     strcpy((char*) database[2].password, "ece302sucks" );
-    strcpy((char*) database[3].password, "ilovealogrithm" );
+    strcpy((char*) database[3].password, "ilovealgorithm" );
     
 }
 
@@ -49,7 +49,7 @@ bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char*
         {
             if(database[i].isLogin)
             {
-                strcpy((char*) reply, "user already logged in");
+                strcpy((char*) reply, "User already logged in");
                 return false;
             }
             else if(strcmp((char*) database[i].password, (char*) pw) == 0)
@@ -61,18 +61,18 @@ bool login(struct sockaddr their_addr,int sfd, unsigned char* un, unsigned char*
                 database[i].port = addr_in->sin_port;
                 database[i].isLogin = true;
                 database[i].sockfd = sfd;
-                strcpy((char*) reply, "login success");
+                strcpy((char*) reply, "Login successfully");
                 return true;
             }
             else
             {
-                strcpy((char*) reply, "pw incorrect");
+                strcpy((char*) reply, "Password incorrect");
                 return false;
             }
         }
     }
 
-    strcpy((char*) reply, "user not found");
+    strcpy((char*) reply, "User not found");
     return false;
 
 }
@@ -108,7 +108,7 @@ void createSession(unsigned char* un, unsigned char* sessionID, unsigned char* r
         {
             database[i].isInSession = true;
             strcpy((char*) database[i].sessionID, (char*) sessionID);
-            strcpy((char*) reply, "successfully created new session");
+            strcpy((char*) reply, "Successfully created new session");
         }
     }
 }
@@ -128,7 +128,7 @@ bool joinSession(unsigned char* un, unsigned char* sessionID, unsigned char* rep
 
     if(!sessionValid)
     {
-        strcpy((char*) reply, "session not found");
+        strcpy((char*) reply, "Session not found");
         return sessionValid;
     }
     else
@@ -139,7 +139,7 @@ bool joinSession(unsigned char* un, unsigned char* sessionID, unsigned char* rep
             {
                 database[i].isInSession = true;
                 strcpy((char*)database[i].sessionID, (char*)sessionID);
-                strcpy((char*) reply, "successfully joined designated session");
+                strcpy((char*) reply, "Successfully joined designated session");
                 return sessionValid; 
             }
         }
@@ -158,7 +158,7 @@ void send_txt(unsigned char* un, unsigned char* txt)
         {
             if(!database[i].isInSession)
             {
-                printf("client not in session!");
+                printf("Client not in session!");
                 return;
             }
             else
@@ -170,7 +170,7 @@ void send_txt(unsigned char* un, unsigned char* txt)
 
         if(i == MAX_USER -1)
         {
-            printf("user not found!");
+            printf("User not found!");
             return;
         }
     }
@@ -201,7 +201,7 @@ void send_txt(unsigned char* un, unsigned char* txt)
         }
     }
 
-    printf("finished sending text in user designated session");
+    printf("Finished sending text in user designated session");
 }
 
 

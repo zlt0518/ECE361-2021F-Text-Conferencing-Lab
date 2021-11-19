@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
 
                 // create the package for sending the log in info package
                 struct message unLoginPackage = createLoginPackage(userID, logInCommandInput[2]);
-                printf("%d  %d  %s  %s\n", unLoginPackage.type, unLoginPackage.size, unLoginPackage.source, unLoginPackage.data);
+                //printf("%d  %d  %s  %s\n", unLoginPackage.type, unLoginPackage.size, unLoginPackage.source, unLoginPackage.data);
                 int sendByte = sendMsg(soc,unLoginPackage);
 
                 if(sendByte<0){
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
                     printf("Successfully login!\n");
                     isLogin = 1;
                 }else {
-                    printf("Failed to login!\n %s\n", decodedMsg.data);
+                    printf("Failed to login!\n%s\n", decodedMsg.data);
                 }
 
 
