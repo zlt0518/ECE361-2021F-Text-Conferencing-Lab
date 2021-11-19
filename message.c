@@ -27,12 +27,16 @@ int sendMsg(int s, struct message encodedMessage) {
 
 struct message readMsg(char* incomingM) {
     struct message decodedM;
-    unsigned char source[1000];
-    unsigned char data[1000];
+    unsigned char readstring[1000];
 
-    sscanf(incomingM, "%d:%d:%s:%[^\n]s", &decodedM.type, &decodedM.size,source,data);
-    strcpy((char*)decodedM.source, (char*)source);
-    strcpy((char*)decodedM.data, (char*)data);
+    sscanf(incomingM, "%d:%d:%[^\n]s", &decodedM.type, &decodedM.size,readstring);
+
+    char* colon = strchr(readstring, ':');
+    *colon = '\0';
+    colon += sizeof(unsigned char);
+
+    strcpy((char*)decodedM.source, (char*)readstring);
+    strcpy((char*)decodedM.data, (char*)colon);
 
     return decodedM;
 }

@@ -98,27 +98,6 @@ int main(int argc, char** argv){
                         { // keep track of the max
                             fdmax = newfd;
                         }
-                        struct message sendM;
-                        memset(sendM.data, 0, sizeof sendM.data);
-                        sendM.size = strlen((char*) sendM.data);
-                        sendM.type = processIncomingM(their_addr,newfd, buffer, sendM.data, sendM.source);
-                        
-
-                        // send reply
-                        if(sendMsg(newfd, sendM)== -1)
-                        {
-                            printf("send error\n");
-                            continue;
-                        } 
-                        printf("replied client request.\n");
-
-                        if(sendM.type == 3)
-                        {
-                            close(newfd);
-                            FD_CLR(newfd, &master);
-                            printf("client is logged in or wrong ID/PW.\n");
-                        }
-                        
                     }
                 } 
                 else 
@@ -133,9 +112,10 @@ int main(int argc, char** argv){
                     // create reply msg
                     struct message sendM;
                     memset(sendM.data, 0, sizeof sendM.data);
-                    sendM.size = strlen((char*) sendM.data);
                     sendM.type = processIncomingM(their_addr,i, buffer, sendM.data, sendM.source);
-                    
+                    sendM.size = strlen((char*) sendM.data);
+
+                    printf("%d:%d:%s:%s\n", sendM.type, sendM.size, sendM.source, sendM.data);
 
                     // send reply
                     if(sendM.type != 11 && sendM.type != 15){
@@ -168,6 +148,8 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
 {
     struct message recvM = readMsg(buffer);
     strcpy((char*) source, "server");
+
+    printf("%d   %d   %s  %s\n", recvM.type, recvM.size, recvM.source, recvM.data);
 
     switch(recvM.type)
     {

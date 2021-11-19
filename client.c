@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
     while (true) {
         // the state of not login
         while (isLogin == 0) {
-            printf("You are not log in! Please input the login information!\n");
+            //printf("You are not log in! Please input the login information!\n");
 
             unsigned char *logInCommandInput[5];
             for (int i = 0; i < 5; i++) {
@@ -98,6 +98,7 @@ int main(int argc, char **argv) {
 
                 // create the package for sending the log in info package
                 struct message unLoginPackage = createLoginPackage(userID, logInCommandInput[2]);
+                printf("%d  %d  %s  %s\n", unLoginPackage.type, unLoginPackage.size, unLoginPackage.source, unLoginPackage.data);
                 int sendByte = sendMsg(soc,unLoginPackage);
 
                 if(sendByte<0){
@@ -128,7 +129,7 @@ int main(int argc, char **argv) {
 
 
             } else{
-                printf("Invalid Command!\n");
+                //printf("Invalid Command!\n");
             }
 
             for (int i = 0; i < 5; i++) free(logInCommandInput[i]);
