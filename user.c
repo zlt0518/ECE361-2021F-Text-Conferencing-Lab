@@ -177,9 +177,10 @@ void send_txt(unsigned char* un, unsigned char* txt)
 
     struct message sendM;
     memset(sendM.data, 0, sizeof sendM.data);
-    strcpy((char*) sendM.data, (char*) un);
+    strcpy((char*) sendM.data, "[");
+    strcat((char*) sendM.data, (char*) un);
     strcpy((char*) sendM.source, "server");
-    strcat((char*) sendM.data, "----=");
+    strcat((char*) sendM.data, "]----=");
     strcat((char*) sendM.data, (char*) txt);
     sendM.size = strlen((char*) sendM.data);
     sendM.type = 11;
