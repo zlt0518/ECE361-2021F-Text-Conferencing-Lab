@@ -108,6 +108,21 @@ int main(int argc, char** argv){
                         perror("recv\n");
                         continue;
                     }
+                    if(nbytes == 0){
+                        printf("user disconnected, auto logout\n");
+                        for(int m = 0; m < MAX_USER; m++)
+                        {
+                            if(i == database[m].sockfd)
+                            {
+                                database[m].isInSession = false;
+                                database[m].isLogin = false;
+                            }
+                            close(i);
+                            FD_CLR(i, &master);
+                        }
+                        continue;
+                    }   
+
                     buffer[nbytes] = '\0';
 
                     // create reply msg

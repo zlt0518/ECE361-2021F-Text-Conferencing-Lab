@@ -261,7 +261,7 @@ int main(int argc, char **argv) {
                     isinsession = 1;
 
                 }else{
-                    printf("Failed to join the session\n");
+                    printf("Failed to create the session, %s\n", decodedMsg.data);
                 }
                 
 
@@ -294,7 +294,7 @@ int main(int argc, char **argv) {
                 loginPackage = createListPackage(userID);
                 if(sendMsg(soc,loginPackage) == -1)
                 {
-                    printf("send error\n");
+                    printf("Send error\n");
                     for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
                     continue;
                 }
