@@ -15,10 +15,10 @@ void init_database()
     strcpy((char*) database[2].username, "C" );
     strcpy((char*) database[3].username, "D" );
 
-    strcpy((char*) database[0].password, "ihatenetworks" );
-    strcpy((char*) database[1].password, "ece361damn" );
-    strcpy((char*) database[2].password, "ece302sucks" );
-    strcpy((char*) database[3].password, "ilovealgorithm" );
+    strcpy((char*) database[0].password, "john" );
+    strcpy((char*) database[1].password, "tommy" );
+    strcpy((char*) database[2].password, "professor" );
+    strcpy((char*) database[3].password, "university" );
     
 }
 
@@ -100,8 +100,24 @@ void leaveSession(unsigned char* un)
     }
 }
 
-void createSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply)
+bool createSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply)
 {
+    bool sessionValid = true;
+    for(int i =0; i < MAX_USER; i++)
+    {
+        if(database[i].isInSession)
+        {
+            if(strcmp((char*) database[i].sessionID, (char*) sessionID) == 0)
+            sessionValid = false;
+            break;
+        }
+    }
+
+    if(!sessionValid)
+    {
+        strcpy((char*) reply, "Session already exists, please create new one");
+        return sessionValid;
+    }
     for(int i = 0; i < MAX_USER ; i++)
     {
         if(strcmp((char*) un, (char*) database[i].username) == 0)

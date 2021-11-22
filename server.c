@@ -190,8 +190,10 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
             return 15;
             break;
         case 9:
-            createSession(recvM.source, recvM.data, data_fill);
-            return 10;
+            if(createSession(recvM.source, recvM.data, data_fill))
+                return 10;
+            else
+                return 16;   
             break;
         case 11:
             send_txt(recvM.source, recvM.data);

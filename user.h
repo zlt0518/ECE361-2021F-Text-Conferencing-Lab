@@ -23,7 +23,7 @@ void logout(unsigned char* un);
 
 bool joinSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply);
 
-void createSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply);
+bool createSession(unsigned char* un, unsigned char* sessionID, unsigned char* reply);
 
 void leaveSession(unsigned char* un);
 
