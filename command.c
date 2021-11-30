@@ -82,7 +82,7 @@ int processNotInSessionCommand(unsigned char *command[3]) {
     } else if (strcmp(command[0], "/quit") == 0) {
         return 0;
     } else if (strcmp(command[0], "/pm") == 0){
-        sscanf((char *)incomingMsg, "%s %s %s", (char *)command[0],
+        sscanf((char *)incomingMsg, "%s %s %[^\n]s", (char *)command[0],
                (char *)command[1], (char *)command[2]);
         return 6;
     }else{
@@ -124,10 +124,11 @@ int processInSessionCommand(unsigned char *command[3]) {
         return 0;
 
     } else if (strcmp(command[0], "/pm") == 0) {
-        sscanf((char *)incomingMsg, "%s %s %s", (char *)command[0],
+        sscanf((char *)incomingMsg, "%s %s %[^\n]s", (char *)command[0],
                (char *)command[1], (char *)command[2]);
         return 5;
     }else {
+        sscanf((char *)incomingMsg, "%[^\n]s", (char *)command[0]);
         return 4;
     }
 }

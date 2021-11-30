@@ -475,6 +475,10 @@ int main(int argc, char **argv) {
                 {
                     printf("%s\n", decodedMsg.data);
                 }
+                else if(decodedMsg.type == 13)
+                {
+                    printf("%s\n", decodedMsg.data);
+                }
                 
 
 
@@ -546,7 +550,13 @@ int main(int argc, char **argv) {
 
                 }else if(inSessioncommand == 2){
 
-                    printf("You can't ask for list when you are in session\n");
+                inSesssionPackage = createListPackage(userID);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    for (int i = 0; i < 3; i++) { free(inSessionCommandInput[i]);}
+                    continue;
+                }
                 
                 
                 }else if(inSessioncommand == 5){
