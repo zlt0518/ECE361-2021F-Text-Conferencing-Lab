@@ -46,7 +46,7 @@ int processLogInCommand(unsigned char *command[5]) {
 }
 
 
-int processNotInSessionCommand(unsigned char *command[2]) {
+int processNotInSessionCommand(unsigned char *command[3]) {
     /*
     return 1 for join the session
     return 2 for create session
@@ -54,6 +54,7 @@ int processNotInSessionCommand(unsigned char *command[2]) {
     return 4 for list
     return 5 for illegal command
     return 0 for quit
+    return 6 for private message
     */
 
     unsigned char incomingMsg[MAXDATASIZE];
@@ -80,7 +81,11 @@ int processNotInSessionCommand(unsigned char *command[2]) {
         return 4;
     } else if (strcmp(command[0], "/quit") == 0) {
         return 0;
-    } else {
+    } else if (strcmp(command[0], "/pm") == 0){
+        sscanf((char *)incomingMsg, "%s %s %s", (char *)command[0],
+               (char *)command[1], (char *)command[2]);
+        return 6;
+    }else{
         return 5;
     }
 
@@ -89,12 +94,13 @@ int processNotInSessionCommand(unsigned char *command[2]) {
 
 
 
-int processInSessionCommand(unsigned char *command) {
+int processInSessionCommand(unsigned char *command[3]) {
     /*
     return 1 for leave the session
     return 2 for list
     return 3 for logout
     return 4 for senetence sent
+    return 5 for private messaging
     return 0 for quit
     */
 
@@ -103,21 +109,25 @@ int processInSessionCommand(unsigned char *command) {
     scanf("%[^\n]s", incomingMsg);
     setbuf(stdin,NULL);
 
-    sscanf((char *)incomingMsg, "%[^\n]s", (char *)command);
+    sscanf((char *)incomingMsg, "%s", (char *)command[0]);
 
-    if (strcmp(command, "/leavesession") == 0) {
+    if (strcmp(command[0], "/leavesession") == 0) {
         return 1;
 
-    } else if (strcmp(command, "/logout") == 0) {
+    } else if (strcmp(command[0], "/logout") == 0) {
         return 3;
 
-    } else if (strcmp(command, "/list") == 0) {
+    } else if (strcmp(command[0], "/list") == 0) {
         return 2;
 
-    } else if (strcmp(command, "/quit") == 0) {
+    } else if (strcmp(command[0], "/quit") == 0) {
         return 0;
 
-    } else {
+    } else if (strcmp(command[0], "/pm") == 0) {
+        sscanf((char *)incomingMsg, "%s %s %s", (char *)command[0],
+               (char *)command[1], (char *)command[2]);
+        return 5;
+    }else {
         return 4;
     }
 }

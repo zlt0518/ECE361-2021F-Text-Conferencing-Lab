@@ -11,8 +11,8 @@
 
 
 int processLogInCommand(unsigned char *commandLine[5]);
-int processNotInSessionCommand(unsigned char *command[2]);
-int processInSessionCommand(unsigned char *command);
+int processNotInSessionCommand(unsigned char *command[3]);
+int processInSessionCommand(unsigned char *command[3]);
 
 
 

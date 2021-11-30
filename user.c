@@ -252,7 +252,7 @@ void pvt_txt(unsigned char* target, unsigned char* txt)
     memset(sendM.data, 0, sizeof sendM.data);
     strcpy((char*) sendM.data, (char*) txt);
     sendM.size = strlen((char*) sendM.data);
-    sendM.type = 16;
+    sendM.type = 17;
 
     if(sendMsg(target_sock, sendM) == -1)
     {

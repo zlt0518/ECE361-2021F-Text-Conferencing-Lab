@@ -121,7 +121,7 @@ struct message createtextPackage(char* user,char*text){
     
 }
 
-struct message createPMPackage(char* user, char* target, char* text);
+struct message createPMPackage(char* user, char* target, char* text)
 {
     struct message package;
     package.type = 17;
