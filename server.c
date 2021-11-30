@@ -134,7 +134,7 @@ int main(int argc, char** argv){
                     printf("%d:%d:%s:%s\n", sendM.type, sendM.size, sendM.source, sendM.data);
 
                     // send reply
-                    if(sendM.type != 11 && sendM.type != 15){
+                    if(sendM.type != 11 && sendM.type != 15 && sendM.type != 17){
                         if(sendMsg(i, sendM) == -1)
                         {
                             printf("send error\n");
@@ -170,7 +170,7 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
 
     // according to the message type, call different processing functions
     // numbers are in accordance with lab handout chart (14 is logout ack, 15 is leavesession ack, for 
-    // server internal use, not actually sent out to client)
+    // server internal use, not actually sent out to client, 16 is private message)
     switch(recvM.type)
     {
         case 1:
@@ -208,7 +208,7 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
             if(createSession(recvM.source, recvM.data, data_fill))
                 return 10;
             else
-                return 16;   
+                return 16;   // where session name already exist
             break;
         case 11:
             send_txt(recvM.source, recvM.data);
@@ -217,6 +217,10 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
         case 12:
             listUserSession(data_fill);
             return 13;
+            break;
+        case 17:
+            pvt_txt(recvM.source,recvM.data);
+            return 17;
             break;
         default:
             printf("no such message type\n");

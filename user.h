@@ -29,6 +29,8 @@ void leaveSession(unsigned char* un);
 
 void send_txt(unsigned char* un, unsigned char* txt);
 
+void pvt_txt(unsigned char* target, unsigned char* txt);
+
 void listUserSession(unsigned char* reply);
 
 #endif

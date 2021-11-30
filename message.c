@@ -120,3 +120,17 @@ struct message createtextPackage(char* user,char*text){
     return package;
     
 }
+
+struct message createPMPackage(char* user, char* target, char* text);
+{
+    struct message package;
+    package.type = 17;
+    strcpy((char*)package.data, "Private message-> User ");
+    strcat((char*)package.data,(char*) user);
+    strcat((char*)package.data,"----=");
+    strcat((char*)package.data,(char*) text);
+    
+    package.size = strlen(package.data);
+    strcpy((char*)package.source, target); // source is actually target client ID, server only need to deliver to  
+    return package;                         // client, dont really need to know who sent the PM
+}

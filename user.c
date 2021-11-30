@@ -220,6 +220,48 @@ void send_txt(unsigned char* un, unsigned char* txt)
     printf("Finished sending text in user designated session");
 }
 
+void pvt_txt(unsigned char* target, unsigned char* txt)
+{
+    // extract sockfd of target client from database
+    int target_sock;
+    for(int i = 0; i < MAX_USER; i++)
+    {
+        if(strcmp((char*) target, (char*) database[i].username) == 0)
+        {
+            if(!database[i].isLogin)
+            {
+                printf("target user not logged in!");
+                return;
+            }
+            else
+            {
+                target_sock = database[i].sockfd;
+                break;
+            }
+        }
+
+        if(i == MAX_USER -1)
+        {
+            printf("User not found!");
+            return;
+        }
+    }
+
+    // message already contained in the text, send it over sockfd of target.
+    struct message sendM;
+    memset(sendM.data, 0, sizeof sendM.data);
+    strcpy((char*) sendM.data, (char*) txt);
+    sendM.size = strlen((char*) sendM.data);
+    sendM.type = 16;
+
+    if(sendMsg(target_sock, sendM) == -1)
+    {
+        printf("send error\n");
+        return;
+    }
+
+}
+
 
 
 
