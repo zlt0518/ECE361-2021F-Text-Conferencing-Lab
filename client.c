@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
     bool isinsession = 0;
     int soc;
     char buffer[MAXDATASIZE];
+    char invitor[10];
     char session[100];
     unsigned char userID[MAX_NAME];
 
@@ -40,6 +41,11 @@ int main(int argc, char **argv) {
     for(int i =0; i < 100; i++)
     {
         session[i] = '\0';
+    }
+
+    for(int i =0; i < 10; i++)
+    {
+        invitor[i] = '\0';
     }
 
     while (true) {
@@ -218,10 +224,16 @@ int main(int argc, char **argv) {
                 }
                 else if(decodedMsg.type == 18){
                     printf("User %s invites you to session/%s \n", decodedMsg.source, decodedMsg.data);
+
                     for(int i =0; i < 100; i++)
                     {
                         session[i] = '\0';
                     }
+                    for(int i =0; i < 10; i++)
+                    {
+                        invitor[i] = '\0';
+                    }
+                    strcpy(invitor,(char*) decodedMsg.source);
                     strcpy(session,(char*) decodedMsg.data);
                 }
                 else{
@@ -442,6 +454,11 @@ int main(int argc, char **argv) {
 
                     }
 
+                    for(int i =0; i < 10; i++)
+                    {
+                        invitor[i] = '\0';
+                    }
+
                     for(int i =0; i < 100; i++)
                     {
                         session[i] = '\0';
@@ -450,8 +467,21 @@ int main(int argc, char **argv) {
                 } else if (notInSessioncommand == 8) {
                     printf("rejected session invite\n");
 
-                    // command for private messaging
-                    // create package PM and send
+                    // command for rejecting session invite
+                    // create package PM and tell the invitor
+                    loginPackage = createPMPackage(userID,invitor,"User rejected your session invite");
+                    if(sendMsg(soc,loginPackage) == -1)
+                    {
+                        printf("Send error\n");
+                        for (int i = 0; i < 3; i++) free(notInSessionCommandInput[i]);
+                        continue;
+                    }
+
+                    for(int i =0; i < 10; i++)
+                    {
+                        invitor[i] = '\0';
+                    }
+
                     for(int i =0; i < 100; i++)
                     {
                         session[i] = '\0';
@@ -534,11 +564,16 @@ int main(int argc, char **argv) {
                 else if(decodedMsg.type == 18) // listing of users and sessions
                 {
                     printf("User %s invite you to session/%s \n", decodedMsg.source, decodedMsg.data);
+                    for(int i =0; i < 10; i++)
+                    {
+                        invitor[i] = '\0';
+                    }
                     for(int i =0; i < 100; i++)
                     {
                         session[i] = '\0';
                     }
                     strcpy(session,(char*) decodedMsg.data);
+                    strcpy(invitor,(char*) decodedMsg.source);
                 }else if(decodedMsg.type == 19) 
                 {
                     printf("%s\n", decodedMsg.data);
@@ -663,6 +698,11 @@ int main(int argc, char **argv) {
                     continue;
                 }
 
+                
+                for(int i =0; i < 10; i++)
+                {
+                    invitor[i] = '\0';
+                }
                 for(int i =0; i < 100; i++)
                 {
                     session[i] = '\0';
@@ -670,6 +710,18 @@ int main(int argc, char **argv) {
 
                 }else if(inSessioncommand == 8){
                 //rejecting invite, clear the session from 
+                    inSesssionPackage = createPMPackage(userID,invitor,"User rejected your invitation");
+                    if(sendMsg(soc,inSesssionPackage) == -1)
+                    {
+                        printf("send error\n");
+                        for (int i = 0; i < 3; i++) { free(inSessionCommandInput[i]);}
+                        continue;
+                    }
+
+                    for(int i =0; i < 10; i++)
+                    {
+                        invitor[i] = '\0';
+                    }
                     for(int i =0; i < 100; i++)
                     {
                         session[i] = '\0';
