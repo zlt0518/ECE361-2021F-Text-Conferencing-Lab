@@ -539,6 +539,9 @@ int main(int argc, char **argv) {
                         session[i] = '\0';
                     }
                     strcpy(session,(char*) decodedMsg.data);
+                }else if(decodedMsg.type == 19) 
+                {
+                    printf("%s\n", decodedMsg.data);
                 }
 
                 
@@ -634,6 +637,7 @@ int main(int argc, char **argv) {
 
                 }else if(inSessioncommand == 6){
                 //create session invite package and send
+                printf("inviting others to session, hint: use /list command to check client session status\n");
                 inSesssionPackage = createInvitePackage(userID,(char*) inSessionCommandInput[1]);
                 if(sendMsg(soc,inSesssionPackage) == -1)
                 {

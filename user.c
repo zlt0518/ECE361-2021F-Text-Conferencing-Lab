@@ -149,14 +149,29 @@ bool joinSession(unsigned char* un, unsigned char* sessionID, unsigned char* rep
     }
     else
     {
+        struct message sendM;
+        memset(sendM.data, 0, sizeof sendM.data);
+        strcpy((char*) sendM.data, (char*) un);
+        strcat((char*) sendM.data, " joined the session!");
+        strcpy((char*) sendM.source, "server");
+        sendM.size = strlen((char*) sendM.data);
+        sendM.type = 19;
+
         for(int i =0; i < MAX_USER; i++)
         {
             if(strcmp((char*) database[i].username, (char*) un) == 0)
             {
                 database[i].isInSession = true;
                 strcpy((char*)database[i].sessionID, (char*)sessionID);
-                strcpy((char*) reply, "Successfully joined designated session");
-                return sessionValid; 
+                strcpy((char*) reply, "Successfully joined designated session"); 
+            }
+            else if(database[i].isInSession && strcmp((char*) database[i].sessionID, (char*) sessionID) == 0 )
+            {
+                if(sendMsg(database[i].sockfd, sendM) == -1)
+                {
+                    printf("send error\n");
+                    return sessionValid;
+                }
             }
         }
     }
