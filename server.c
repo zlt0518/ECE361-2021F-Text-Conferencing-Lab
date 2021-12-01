@@ -108,7 +108,7 @@ int main(int argc, char** argv){
                         perror("recv\n");
                         continue;
                     }
-                    if(nbytes == 0){
+                    if(nbytes <= 4){
                         printf("user disconnected, auto logout\n");
                         for(int m = 0; m < MAX_USER; m++)
                         {

@@ -285,35 +285,7 @@ int main(int argc, char **argv) {
 
                     }
 
-                    /*
-                    //wait for ACK
-                    // clear buffer before receiving new content
-                    for(int m = 0; m < MAXDATASIZE;m++)
-                    {
-                        buffer[m] = '\0';
-                    }
-
-                    int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
-
-                    if(loginByte<0){
-                        printf("Error receiving\n");
-                        //free pointers
-                        for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
-                        continue;
-                    }
-
-                    struct message decodedMsg = readMsg(buffer); 
-
-                    if(decodedMsg.type == 6){
-
-                        printf("Successfully joined the session %s\n",notInSessionCommandInput[1]);
-                        isinsession = 1;
-
-                    }else{
-                        printf("Failed to join the session %s\n", decodedMsg.data);
-
-                    }
-                    */
+                   
                     
                 } else if (notInSessioncommand == 2) {
                     // command for create session
@@ -328,35 +300,7 @@ int main(int argc, char **argv) {
 
                     }
 
-                    /*
-                    // wait for ack
-                    // clear buffer before receiving new content
-                    for(int m = 0; m < MAXDATASIZE;m++)
-                    {
-                        buffer[m] = '\0';
-                    }
-
-                    int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);     
-
-                    if(loginByte<0){
-                        printf("Error receiving\n");
-                        //free pointers
-                        for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
-                        continue;
-                    }
-
-                    struct message decodedMsg = readMsg(buffer);
-
-                    if(decodedMsg.type == 10){
-
-                        printf("Successfully created the session %s\n",notInSessionCommandInput[1]);
-                        //change the flag
-                        isinsession = 1;
-
-                    }else{
-                        printf("Failed to create the session, %s\n", decodedMsg.data);
-                    }
-                    */
+                    
 
 
                 } else if (notInSessioncommand == 3) {
@@ -393,37 +337,7 @@ int main(int argc, char **argv) {
                     }
 
 
-                    /*
-                    //listen for the package of list 
-                    //wait for ACK
-                    // clear buffer before receiving new content
-                    for(int m = 0; m < MAXDATASIZE;m++)
-                    {
-                        buffer[m] = '\0';
-                    }
-
-                    int loginByte = recv(soc, buffer, MAXDATASIZE-1, 0);
-
-                    if(loginByte<0){
-                        printf("Error receiving\n");
-                        //free pointers
-                        for (int i = 0; i < 2; i++) free(notInSessionCommandInput[i]);
-                        continue;
-                    }
-
-                    struct message decodedMsg = readMsg(buffer);
-
-                    if(decodedMsg.type == 13){
-                        printf("Successfully get the List of user and session\n");
-                        printf("%s\n", decodedMsg.data);
-                        //print out the list
-
-                    }else{
-                        printf("Failed to query the list\n");
-
-                    }
-
-                    */
+                    
 
 
                 } else if (notInSessioncommand == 6) {
@@ -440,6 +354,12 @@ int main(int argc, char **argv) {
                         continue;
                     }
                 } else if (notInSessioncommand == 7) {
+                    if(session[0] == '\0')
+                    {
+                        printf("not been invited to any session\n");
+                        continue;
+                    }
+
                     printf("accepting session invite!\n");
 
                     // command for accepting session invite
@@ -466,6 +386,11 @@ int main(int argc, char **argv) {
 
                 } else if (notInSessioncommand == 8) {
                     printf("rejected session invite\n");
+                    if(session[0] == '\0')
+                    {
+                        printf("not been invited to any session\n");
+                        continue;
+                    }
 
                     // command for rejecting session invite
                     // create package PM and tell the invitor
@@ -710,6 +635,12 @@ int main(int argc, char **argv) {
 
                 }else if(inSessioncommand == 8){
                 //rejecting invite, clear the session from 
+                    if(session[0] == '\0')
+                    {
+                        printf("not been invited to any session\n");
+                        continue;
+                    }
+
                     inSesssionPackage = createPMPackage(userID,invitor,"User rejected your invitation");
                     if(sendMsg(soc,inSesssionPackage) == -1)
                     {

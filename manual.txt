@@ -1,0 +1,41 @@
+Welcome to Tommy and John's Lab5!
+
+aside from lab4 commands, we implememted session invite and private messaging 
+feature.
+
+to invite others to a session, you must be in a session first(join or create a
+session). The command format is:
+/invite {username you want to invite}
+
+once you are invited, you can accept or reject the invite by typing these commands:
+/accept
+/reject
+
+if you accept, you will join the invitor's session, if you reject, you will remain in 
+your previous session or stay in logged in status.
+
+for private messaging, you need to log in first. Then , whether you are in session
+or not, you can private message others as long as they are logged in.
+private message use the following command:
+/pm {username to talk to} {message}
+
+
+The session invite has the following structure: 
+there is a new packet type called session invite. When user send this packet to 
+server, it contains the invitin username and invited username. The server extracts 
+session ID of the invitor and the sockfd of the invited, and send the sessionID and the
+invitor's username to the invited.the Invited user then store these two pieces of info locally.
+when accepting the invitation, the invited uses the joinsession functionality with the 
+stored sessionID, which we modified to notify everyone in the session when somebody joins. 
+If reject, the invited will generate a private message to the Invitor to notify the 
+rejection. 
+After each accept or reject, the invitor username and sessionID that are stored locally
+will be erased. to prevent multiple accept or reject.
+
+
+
+The private messaging has the following structure:
+The sender will deliver the target username and sender username integrated with the 
+message in the packet to the server. Since server is required to forward the message, 
+it extracts the target's sockfd and send the data over, which contains the sender username 
+and the message.
