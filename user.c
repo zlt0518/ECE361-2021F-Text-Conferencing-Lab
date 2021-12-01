@@ -251,6 +251,7 @@ void pvt_txt(unsigned char* target, unsigned char* txt)
     struct message sendM;
     memset(sendM.data, 0, sizeof sendM.data);
     strcpy((char*) sendM.data, (char*) txt);
+    strcpy((char*) sendM.source, "server");
     sendM.size = strlen((char*) sendM.data);
     sendM.type = 17;
 
@@ -262,6 +263,73 @@ void pvt_txt(unsigned char* target, unsigned char* txt)
 
 }
 
+void sessionInvite(unsigned char* un, unsigned char* target)
+{
+    // find the target client socketfd
+    int target_sock;
+    for(int i = 0; i < MAX_USER; i++)
+    {
+        if(strcmp((char*) target, (char*) database[i].username) == 0)
+        {
+            if(!database[i].isLogin)
+            {
+                printf("target user not logged in!");
+                return;
+            }
+            else
+            {
+                target_sock = database[i].sockfd;
+                break;
+            }
+        }
 
+        if(i == MAX_USER -1)
+        {
+            printf("User not found!");
+            return;
+        }
+    }
+
+    // find the invitor's session
+    unsigned char crtSession[100];
+    
+    for(int i = 0; i < MAX_USER; i++)
+    {
+        if(strcmp((char*) un, (char*) database[i].username) == 0)
+        {
+            if(!database[i].isInSession)
+            {
+                printf("Client not in session!");
+                return;
+            }
+            else
+            {
+                strcpy((char*) crtSession, (char*) database[i].sessionID);
+                break;
+            }
+        }
+
+        if(i == MAX_USER -1)
+        {
+            printf("User not found!");
+            return;
+        }
+    }
+
+
+    // send the invitor's session ID to target
+    struct message sendM;
+    memset(sendM.data, 0, sizeof sendM.data);
+    strcpy((char*) sendM.data, (char*) crtSession);
+    strcpy((char*) sendM.source, (char*) un);
+    sendM.size = strlen((char*) sendM.data);
+    sendM.type = 18;
+
+    if(sendMsg(target_sock, sendM) == -1)
+    {
+        printf("send error\n");
+        return;
+    }
+}
 
 

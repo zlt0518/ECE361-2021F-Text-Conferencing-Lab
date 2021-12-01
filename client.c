@@ -29,12 +29,18 @@ int main(int argc, char **argv) {
     bool isinsession = 0;
     int soc;
     char buffer[MAXDATASIZE];
+    char session[100];
     unsigned char userID[MAX_NAME];
 
     fd_set read_fds;
     fd_set master;    // master file descriptor list
     FD_ZERO(&read_fds);
     FD_ZERO(&master);    // clear the master and temp sets
+
+    for(int i =0; i < 100; i++)
+    {
+        session[i] = '\0';
+    }
 
     while (true) {
         // the state of not login
@@ -209,6 +215,14 @@ int main(int argc, char **argv) {
                 }
                 else if(decodedMsg.type == 17){
                     printf("%s\n", decodedMsg.data);
+                }
+                else if(decodedMsg.type == 18){
+                    printf("User %s invites you to session/%s \n", decodedMsg.source, decodedMsg.data);
+                    for(int i =0; i < 100; i++)
+                    {
+                        session[i] = '\0';
+                    }
+                    strcpy(session,(char*) decodedMsg.data);
                 }
                 else{
                     printf("Failed to query the list\n");
@@ -413,6 +427,36 @@ int main(int argc, char **argv) {
                         for (int i = 0; i < 3; i++) free(notInSessionCommandInput[i]);
                         continue;
                     }
+                } else if (notInSessioncommand == 7) {
+                    printf("accepting session invite!\n");
+
+                    // command for accepting session invite
+                    // create join session package and send
+                    loginPackage = createJoinSessionPackage(userID, session);
+                    int sendByte = sendMsg(soc,loginPackage);
+
+                    if(sendByte<0){
+
+                        for (int i = 0; i < 3; i++) free(notInSessionCommandInput[i]);
+                        continue;
+
+                    }
+
+                    for(int i =0; i < 100; i++)
+                    {
+                        session[i] = '\0';
+                    } // clear off the session buffer to prevent double accept
+
+                } else if (notInSessioncommand == 8) {
+                    printf("rejected session invite\n");
+
+                    // command for private messaging
+                    // create package PM and send
+                    for(int i =0; i < 100; i++)
+                    {
+                        session[i] = '\0';
+                    }
+
                 } else {
                     printf("Ilegal Command, Please input an valid command!\n");
 
@@ -467,18 +511,36 @@ int main(int argc, char **argv) {
                 }
                 struct message decodedMsg = readMsg(buffer);
 
-                if(decodedMsg.type == 11)
+                if(decodedMsg.type == 11) // chat message
                 {
                     printf("%s\n", decodedMsg.data);
                 }
-                else if(decodedMsg.type == 17)
+                else if(decodedMsg.type == 6) //success switch session
+                {
+                    printf("Successfully switched session, %s\n", decodedMsg.data);
+                }
+                else if(decodedMsg.type == 7) //switch session fail
+                {
+                    printf("Fail to switch session, %s\n", decodedMsg.data);
+                }
+                else if(decodedMsg.type == 17) //private message
                 {
                     printf("%s\n", decodedMsg.data);
                 }
-                else if(decodedMsg.type == 13)
+                else if(decodedMsg.type == 13) // listing of users and sessions
                 {
                     printf("%s\n", decodedMsg.data);
                 }
+                else if(decodedMsg.type == 18) // listing of users and sessions
+                {
+                    printf("User %s invite you to session/%s \n", decodedMsg.source, decodedMsg.data);
+                    for(int i =0; i < 100; i++)
+                    {
+                        session[i] = '\0';
+                    }
+                    strcpy(session,(char*) decodedMsg.data);
+                }
+
                 
 
 
@@ -570,6 +632,45 @@ int main(int argc, char **argv) {
                     continue;
                 }
 
+                }else if(inSessioncommand == 6){
+                //create session invite package and send
+                inSesssionPackage = createInvitePackage(userID,(char*) inSessionCommandInput[1]);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    for (int i = 0; i < 3; i++) { free(inSessionCommandInput[i]);}
+                    continue;
+                }
+
+                }else if(inSessioncommand == 7){
+                //accepting the invite, equivalent to joining the new session
+                if(session[0] == '\0')
+                {
+                    printf("not been invited to any session\n");
+                    continue;
+                }
+
+                printf("accepting session invite\n");
+                inSesssionPackage = createJoinSessionPackage(userID, session);
+                if(sendMsg(soc,inSesssionPackage) == -1)
+                {
+                    printf("send error\n");
+                    for (int i = 0; i < 3; i++) { free(inSessionCommandInput[i]);}
+                    continue;
+                }
+
+                for(int i =0; i < 100; i++)
+                {
+                    session[i] = '\0';
+                }
+
+                }else if(inSessioncommand == 8){
+                //rejecting invite, clear the session from 
+                    for(int i =0; i < 100; i++)
+                    {
+                        session[i] = '\0';
+                    }
+                    printf("rejected session invite\n");
                 }else{
                 //create the message and send
                 inSesssionPackage = createtextPackage(userID,(char*) inSessionCommandInput[0]);

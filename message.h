@@ -29,6 +29,7 @@ struct message createJoinSessionPackage(char* user,char*sessionID);
 struct message createCreateSessionPackage(char* user,char* sessionID);
 struct message createLeaveSessionPackage(char* user);
 struct message createPMPackage(char* user, char* target, char* text);
+struct message createInvitePackage(char* user, char* target);
 
 
 // message types
@@ -57,6 +58,8 @@ struct message createPMPackage(char* user, char* target, char* text);
 	14:ack for exit
 
     17:private message
+
+    18: session invite
 
 */
 #endif

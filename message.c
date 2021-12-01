@@ -134,3 +134,14 @@ struct message createPMPackage(char* user, char* target, char* text)
     strcpy((char*)package.source, target); // source is actually target client ID, server only need to deliver to  
     return package;                         // client, dont really need to know who sent the PM
 }
+
+struct message createInvitePackage(char* user, char* target)
+{
+    struct message package;
+    package.type = 18;
+    strcpy((char*)package.data, target);
+    
+    package.size = strlen(package.data);
+    strcpy((char*)package.source, user);  
+    return package;
+}

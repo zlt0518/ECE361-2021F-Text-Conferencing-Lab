@@ -134,7 +134,7 @@ int main(int argc, char** argv){
                     printf("%d:%d:%s:%s\n", sendM.type, sendM.size, sendM.source, sendM.data);
 
                     // send reply
-                    if(sendM.type != 11 && sendM.type != 15 && sendM.type != 17){
+                    if(sendM.type != 11 && sendM.type != 15 && sendM.type != 17 && sendM.type != 18){
                         if(sendMsg(i, sendM) == -1)
                         {
                             printf("send error\n");
@@ -221,6 +221,10 @@ int processIncomingM(struct sockaddr their_addr, int s, unsigned char* buffer, u
         case 17:
             pvt_txt(recvM.source,recvM.data);
             return 17;
+            break;
+        case 18:
+            sessionInvite(recvM.source, recvM.data);
+            return 18;
             break;
         default:
             printf("no such message type\n");

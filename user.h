@@ -33,4 +33,5 @@ void pvt_txt(unsigned char* target, unsigned char* txt);
 
 void listUserSession(unsigned char* reply);
 
+void sessionInvite(unsigned char* ID, unsigned char* target);
 #endif
